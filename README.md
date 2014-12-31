@@ -8,6 +8,7 @@ smarthost
 2. Bridge two or more sub networks 
 3. Push mobile requests to pc to manupulate
 4. Configurate host/IP at mobile client
+5. Suitable for tester and developers
 
 
 ### Note ###
