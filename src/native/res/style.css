@@ -1,0 +1,43 @@
+html * {margin:0px;padding:0px;}
+body{padding:0px; font-size:12px;background-color: #efefef;width:100%;height:100%;cursor:default; color:#141414; 
+}
+button{font-size:13px;height:30px;padding:0px 2px;}
+#divBody{padding:0 10px; width:770px; height:515px; overflow:auto; }
+#divTextMode{width:795px; height:515px; overflow:hidden;}
+#divTextMode textarea{width:795px;height:515px; overflow:auto; border:0px; background-color: #efefef;}
+#divFooter{text-align:right;border-width:2px 0px;border-style: solid;border-top-color:buttonhighlight ;border-bottom-color: buttonshadow;background-color:buttonface;height:40px;padding-top:5px;position:relative;}
+#divFooter button{margin:2px;}
+#divFooter .hotarea{display:inline; zoom:1; width:70px; height:30px;}
+.domaingroups{padding:1px 6px;margin:5px 0px;cursor:default;}
+.domaingroups legend{margin-left:-10px; cursor:default;}
+.domaingroups legend .act{display:none}
+.domaingroups legend .act a{margin:0px 2px}
+
+.domaingroups div{width:144px;float:left;overflow:hidden;height:26px;margin:2px;}
+.domaingroups div label{padding:1px 2px; zoom:1;}
+.domaingroups div a{margin:1px 1px; zoom:1;}
+.fieldsetover{}
+.fieldsetover legend{font-weight:bold;color:#BA0113;}
+.fieldsetover legend .act{display:inline}
+.ruleover{background-color: #D9D9D9; border:1px solid #C9C9C9; padding:0px 2px;}
+.spMsg{position:absolute;top:0px;left:0px;margin:2px;color:red;}
+.divFloatEdit{width:240px;height:180px;border:2px solid;border-color:buttonhighlight buttonshadow buttonshadow buttonhighlight;;position:absolute;overflow:hidden;background-color:buttonface;padding:15px 2px;}
+.divFloatEdit label{width:40px;text-align:right;}
+.divFloatEdit input{width:150px;}
+.divFloatEdit p{text-align:center;margin:4px 0;}
+.divFloatEdit button{margin:10px 10px;}
+.divFloatAdd{border:2px solid;border-color:buttonhighlight buttonshadow buttonshadow buttonhighlight;;position:absolute;overflow:hidden;background-color:buttonface;padding:15px 5px 10px 5px;cursor:default;}
+.divFloatAdd fieldset{display:inline;padding:5px;}
+.divFloatAdd button{margin:10px 10px;}
+.divFloatAdd .toolsbar{text-align:center;margin:4px 0;}
+.divFloatAdd label{text-align:right;zoom:1;width:60px;}
+.divFloatAdd .text{padding:1 3px;}
+.layout{position:absolute;top:0px;left:0px;background-color: #000000;}
+.effective{font-weight:bold;}
+.learning{zoom:1;width:360px;margin:0px 15px;overflow:hidden;white-space  :nowrap;}
+.learning span{zoom:1;width:400px;}
+.clshelp{position:absolute;top:0px;left:0px; height:100%;background-color:#FFFFCC;margin:0px; padding:0px 10px;display:none;overflow:auto;}
+.hidden{display:none;}
+.center{text-align:center;}
+.title{font-size:16px;font-weight:bold;word-spacing:5px;letter-spacing:2px;}
+.blue{color:blue;}

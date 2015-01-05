@@ -1,6 +1,6 @@
 body{
 	font-size:1.2em;line-height:1.5em;
-	width:device-width;min-width:320px;
+	width:device-width;min-width:240px;
 	overflow-x:hidden;
 }
 fieldset{border:none;border-radius:0.5em;-webkit-box-shadow:0px 0px 1px #555;margin-bottom:0.5em;}
@@ -8,12 +8,17 @@ fieldset legend{ background:#fff; }
 input,select,button{
 	width:100%; overflow-x:hidden;
 	border-radius:0.2em;
-	-webkit-box-shadow:0px 0px 0px #fff;
+	-webkit-box-shadow:none;
+	/*font-size:1.2em;line-height:1.5em;*/
 	font-size:1.2em;
+	line-height:1.2em;
 	padding:0.5em;
 }
-input{width:94%;border:1px solid #ddd;}
+select{line-height:1em;-webkit-appearance: listbox;padding:0.6em;border:1px solid #d1d1d1;}
+input{width:92%;border:1px solid #ddd;}
 input.invalid{-webkit-box-shadow:inset 0 0 2px #ff0202;}
+#proxyModel{border:1px solid #f00;}
+#localContent input{width:60%;}
 button{
 	border-radius:0.5em;
 	display: block;
@@ -21,25 +26,31 @@ button{
 	outline:none;
 	font-size:1.5em;
 	zoom:1;	
+	font-weight:600;
 }
 button.blue{
 	color: #d9eef7;
-	background: #0095cd;
 	background: -webkit-gradient(linear, left top, left bottom, from(#00adee), to(#0078a5));
 }
-button.green{
-	color: #e8f0de;
-	background: #64991e;
-	background: -webkit-gradient(linear, left top, left bottom, from(#7db72f), to(#4e7d0e));
+button.dark{
+	color: #fff;
+	background: -webkit-gradient(linear, left top, left bottom, from(#A4D8F7), to(#0CA5F7));
+}
+button.gray{
+	color: #FFFFFF;
+	background:-webkit-gradient(linear, left top, left bottom, from(#71BFED), to(#116896));
 }
 .center{text-align:center;}
 .float{position:fixed;bottom:0.5em;width:100%;}
 .float button{margin-left:auto;margin-right:auto;width:90%;}
+
 dl{text-align:justify;margin:0px;padding:0px;}
 dd{margin-left:1em;}
 div.info,div.select{padding:0.3em;margin-bottom:0.5em;}
 div.info{position:relative;}
 div.select{font-weight:600;}
+
 .copy{margin-bottom:1em;font-size:0.8em;color:#666;}
 #localContent div:last-child{border-bottom:none;margin-bottom:1em;}
 #localContent,#remoteContent,#cleanContent{display:none;}
+#addBtnOne,.delBtn{width: 3em;position: absolute;right:-.2em;top:.8em;font-size: 1.5em;padding: 0.2em;border:none;}

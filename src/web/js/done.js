@@ -20,7 +20,7 @@ function restoreHost(postStr){
 		if(model=='remote'){
 			$('#remoteContent').html([
 				'All HTTP requests will be sent to ',
-				obj.remoteHost,' : ',
+				obj.remoteHost,':',
 				(obj.remotePort||'')
 			].join(''));
 		}
@@ -31,9 +31,11 @@ function restoreHost(postStr){
 		$('#remoteContent').html('Unknown Error founds, Please try again').show();
 	}
 }
+
 function backToConfig(){
 	location.replace(location.protocol+'//'+document.domain);
 }
+
 function initEvents(){
 	window.backBTN = $('button.blue')[0];
 	backBTN.onclick = backToConfig;

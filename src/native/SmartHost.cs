@@ -23,8 +23,8 @@ using Fiddler;
 [assembly: AssemblyCopyright("Copyright Mooringniu@Tencent 2014")]
 [assembly: AssemblyProduct("SmartHost")]
 [assembly: AssemblyTrademark("SmartHost")]
-[assembly: AssemblyVersion("1.1.0.3")]
-[assembly: AssemblyFileVersion("1.1.0.3")]
+[assembly: AssemblyVersion("1.1.0.4")]
+[assembly: AssemblyFileVersion("1.1.0.4")]
 [assembly: Fiddler.RequiredVersion("2.4.1.1")]
 
 public class SmartHost : IAutoTamper
@@ -136,7 +136,7 @@ public class SmartHost : IAutoTamper
             "Smarthost For Fiddler\n--------------------------------------------------"
             + "\nA Remote IP/Host REMAP Add-on for Fiddler"
             + "\nMaking mobile developming More Easier.\n"
-            + "\nFileVersion: 1.1.0.3\n"
+            + "\nFileVersion: 1.1.0.4\n"
             + "\nAny suggestion contact mooringniu@gmail.com",
             "About SmartHost",
             MessageBoxButtons.OK,
@@ -192,7 +192,7 @@ public class SmartHost : IAutoTamper
         }else{
             httpWebRequest.Proxy.Credentials = CredentialCache.DefaultCredentials;
         }
-        httpWebRequest.UserAgent = "SmartHost/1.1.0.3";
+        httpWebRequest.UserAgent = "SmartHost/1.1.0.4";
         httpWebRequest.Referer = "http://smart.host/";
         try{
             HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
@@ -295,7 +295,7 @@ public class SmartHost : IAutoTamper
         oSession.utilCreateResponseAndBypassServer();
         oSession.bypassGateway = true;
         oSession.responseCode = statusCode;
-        oSession.oResponse.headers["Server"] = "SmartHost/1.1.0.3";
+        oSession.oResponse.headers["Server"] = "SmartHost/1.1.0.4";
         oSession.oResponse.headers["Date"] = DateTime.Now.ToUniversalTime().ToString("r");
     }
     

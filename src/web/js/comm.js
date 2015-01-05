@@ -1,11 +1,26 @@
-function setKey( key, value )
-{
+function setKey(key, value) {
 	try{localStorage.setItem(key,value);}catch(e){}
+	var d = new Date();
+	d.setTime(d.getTime()+86400000*31);
+	document.cookie = key +'='+value+'; domain='+document.domain +'; expires='+d.toGMTString();
 }
 function getKey(key){
-	try{
-		return localStorage.getItem(key);
-	}catch(e){
+	var v = null;
+	if(window.localStorage){
+		v = localStorage.getItem(key);
+	}
+	if(v != null){
+		return v;
+	}else{
+		return getCookie(key);
+	}
+}
+function getCookie(key){
+	var cookie = document.cookie,
+		mat = (new RegExp(key+'=([^;]+)')).exec(document.cookie);
+	if(mat){
+		return mat[1];
+	}else{
 		return null;
 	}
 }
@@ -14,6 +29,9 @@ function delKey( key )
 	try{
 		localStorage.removeItem(key);
 	}catch(e){}
+	var d = new Date();
+	d.setTime(d-86400000*365);
+	document.cookie = key +'=; domain='+document.domain +'; expires='+d.toGMTString();
 }
 function clearStore()
 {

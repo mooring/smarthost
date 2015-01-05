@@ -1,0 +1,493 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<title>SmartHost Editor</title>
+<hta:application id="smartHostEditor" icon="smarthost.ico"  applicationname="smartHostEditor" singleinstance="yes" border="thin" scroll="no" maximizeButton="no">
+<link rel="stylesheet" type="text/css" href="style.css" />
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="extend.js"></script>
+<body>
+<div id="divBody"></div>
+<div id="divTextMode" class="hidden"><textarea id="taHostText"></textarea></div>
+<div id="divFooter">
+	<span id="spMsg" class="spMsg"></span>
+	<button title="Switch to Text Mode">Text Mode</button>
+	<button title="Switch to Button Mode" class="hidden">Grid Mode</button>
+	<button title="Add New Host Rule">Add Host</button>
+	<button title="Save to Hosts file" class="hidden">Save</button>
+	<button title="Reload">Reload</button>
+</div>
+<script type="text/javascript">
+function getHostRulesFromDom(){
+	var arHost = [];
+	$('#divBody fieldset').each(function(){
+		var ar = [];
+		$(':checkbox', this).each(function(i, n){
+			var ck = $(n);
+			ar.push((!ck.attr('checked') ? '#' : '') + ck.attr('ip') + ' ' + ck.attr('domain') + (ck.attr('cmnt') ? (' #' + ck.attr('cmnt')) : ''));
+			ar.domain = ck.attr('domain');
+		});
+		arHost.push(['#{domain=' + ar.domain, ar.join("\r\n"), "#}"].join("\r\n"));
+	});
+	return arHost.join("\r\n\r\n");
+}
+function getHostHtmlFromDom(){
+    var arHost = [];
+	$('#divBody fieldset').each(function(){
+		var ar = [], noSel = true;
+		$(':checkbox', this).each(function(i, n){
+			var ck = $(n);
+            if(ck.attr('checked')){
+                noSel = false;
+            }
+			ar.push('<option value="'+ck.attr('ip')+'"'+ (ck.attr('checked') ? ' selected' : '') + '>' + ck.attr('ip') + '</option>');
+			ar.domain = ck.attr('domain');
+		});
+        ar.unshift('<option value=""'+(noSel?' selected':'')+'>IDC Host</option>');
+        arHost.push('\t<div class="select">'+ar.domain+'<select name="'+ar.domain+'">'+ar.join('')+'</select></div><i></i>');
+	});
+	return arHost.join("\r\n");
+}
+function getHostHtmlFromText(text){
+    var arGroup = text.match(/#\{[\s\S]+?#\}/g) || [], arHtml = [], rSplit = /(\r)?\n/,htmLst = [];
+    $.each(arGroup, function(j, m,ar){
+        ar = m.split(rSplit);
+        var rule = null,ips  = [];
+        $.each(ar.slice(1, ar.length - 1), function(i, n){
+            rule = getObjByRule(n), // rule = { sharp:'#'||'',ip:'192....',domain:'',cmnt:'sdls'}
+            ips.push('<option value="'+rule.ip+'"'+ (rule.sharp=='' ? ' selected' : '') + '>' + rule.ip + '</option>');
+        });
+        htmLst.push('\t<div class="select">'+rule.domain+'<select name="'+rule.domain+'">'+ips.join('')+'</select></div><i></i>');
+	});
+    return htmLst.join("\r\n");
+}
+function getHostDoneFromDom(){
+	var arHost = [];
+	$('#divBody fieldset').each(function(){
+		var ar = { ip:''};
+		$(':checkbox', this).each(function(i, n){
+			var ck = $(n);
+			ar.domain = ck.attr('domain');
+		});
+        arHost.push('\t<li><a target="_blank" href="http://'+ar.domain+'/">'+ar.domain + '</a></li>');
+	});
+	return arHost.join("\r\n");
+}
+function getHostDoneFromText(text){
+    var arGroup = text.match(/#\{[\s\S]+?#\}/g) || [], arHtml = [], rSplit = /(\r)?\n/,htmLst = [];
+    $.each(arGroup, function(j, m,ar){
+        ar = m.split(rSplit);
+        var rule = null,ips  = [];
+        if(ar.length>1){
+            rule = getObjByRule(ar[1]); // rule = { sharp:'#'||'',ip:'192....',domain:'',cmnt:'sdls'}
+            htmLst.push('\t<li><a target="_blank" href="http://'+rule.domain+'/">'+rule.domain +'</a></li>');
+        }
+	});
+    return htmLst.join("\r\n");
+}
+function setTextToHost(text){
+    if (text.empty()) return false;
+    var htmTxt = getFormText().trim(),
+        frmTxt = getHostHtmlFromText(text);
+    saveDomToHtml(htmTxt,frmTxt);
+	var	hreTxt = getHostDoneFromText(text),
+        donTxt = getDoneText().trim();
+	saveDomToDone(donTxt,hreTxt);
+	return true;
+}
+function saveDomToHost(message, isSilence){
+	var text = getHostText().trim().split('\n').slice(0, 3).join('');
+	var HText = '#WELLFORMATED\r\n' +
+	'#NOTICE:Don\'t Change Manually\r\n';
+	message = (message || 'Save') + (setHostText(HText + getHostRulesFromDom()) ? 'Success' : 'Failure');
+    var frmTxt = getHostHtmlFromDom().trim(),
+        htmTxt = getFormText().trim();
+    saveDomToHtml(htmTxt,frmTxt);
+	var hreTxt = getHostDoneFromDom().trim(),
+		donTxt = getDoneText().trim();
+	saveDomToDone(donTxt,hreTxt);
+	isSilence || msg(message);
+}
+function saveDomToDone(htmTxt,hreTxt){
+	htmTxt = htmTxt.replace(/^\s*<li><a target="_blank" href="[^\r\n]+<\/a><\/li>/gmi,'')
+    htmTxt = htmTxt.replace(/[\r\n]{2,}/gi,"\r\n");
+    htmTxt = htmTxt.replace('<span holder></span>',hreTxt+"\r\n\t<span holder></span>");
+    setDoneText(htmTxt);
+}
+function saveDomToHtml(htmTxt,frmTxt){
+    htmTxt = htmTxt.replace(/^[\s\t]+<div class=\"select\">[^\r\n]+<\/select><\/div><i><\/i>/gmi,'');
+    htmTxt = htmTxt.replace(/[\r\n]{2,}/gi,"\r\n");
+    htmTxt = htmTxt.replace('<span holder></span>',frmTxt+"\r\n\t<span holder></span>");
+    setFormText(htmTxt);
+}
+function msg(text){
+	if (msg.timer) clearTimeout(msg.timer);
+	var sp = $('#spMsg').toggleClass('blue').html(text);
+	msg.timer = setTimeout(function(){
+		sp.html('');
+	}, 3000);
+}
+function now(){
+	return +new Date;
+}
+function fmtDate(dt){
+	return (dt.getFullYear() + '/' + (dt.getMonth() + 1) + '/' + dt.getDate()).replace(fmtDate.rFmt, '$10$2');
+}
+function fmtTime(dt){
+	return ([dt.getFullYear(),'-',dt.getMonth() + 1,'-',dt.getDate(),' ',dt.getHours(),'-',dt.getMinutes(),'-',dt.getSeconds()].join('')).replace(fmtDate.rFmt, '$10$2');
+}
+function backUpHostFile(){
+	try {
+		fso.CopyFile(hostpath, hostpath.replace(/[^\\]*$/, "") + "hosts " + fmtTime(new Date()) + '.txt');
+		return true;
+	} catch (e) {
+		msg('Backup HOSTS File Error');
+		return false;
+	}
+}
+function initwindow(){
+	var winsize = {
+		winwidth: 800,
+		winheight: 600,
+		scrnwidth: screen.availWidth,
+		scrnheight: screen.availHeight
+	};
+	try {
+		window.resizeTo(winsize.winwidth, winsize.winheight);
+		window.moveTo((winsize.scrnwidth - winsize.winwidth) / 2, (winsize.scrnheight - winsize.winheight) / 2);
+	} catch (ex) {
+	}
+}
+function getObjByRule(rule){
+	return rule.isRule() ? {
+		sharp: RegExp.$1,
+		ip: RegExp.$2,
+		domain: RegExp.$3.toLowerCase(),
+		cmnt: RegExp.$4.charAt(0) == '#' ? RegExp.$4.slice(1) : RegExp.$4
+	} : null;
+}
+function formatHostFile(){
+	var text = getHostText().trim();
+	if (/^#WELLFORMATED/i.test(text) && !/#GROUP_\d+#/i.test(text)) return text;
+	//host is not formated，backup first
+	backUpHostFile();
+	//get the host text
+	var ar = text.split(['\n']), oHost = {}, o = null;
+	$.each(ar, function(i, n){
+		if (o = getObjByRule(n.trim())) {
+			var dm = o.domain.toLowerCase();
+			if (!oHost[dm]) oHost[dm] = [];
+			oHost[o.domain].push(o);
+		}
+	});
+	var arHText = ['#WELLFORMATED\r\n' ];
+	$.each(oHost, function(k, v){
+		v.unique(function(n){
+			return n.ip;
+		});
+		arHText.push('#{domain=' + v[0].domain);
+		$.each(v, function(j, m){
+			arHText.push(getRuleByObj(m));
+		});
+		arHText.push('#}\r\n');
+	});
+
+	var fmtTxt = arHText.join("\r\n");
+	if (!setHostText(fmtTxt)) {
+		msg('save formated host failed，host maybe readonly! init error！');
+		return '';
+	}
+	return fmtTxt;
+}
+function getRuleByObj(obj){
+	return (obj.sharp ? '#' : '') + obj.ip + ' ' + obj.domain + (obj.cmnt.empty() ? '' : (' #' + obj.cmnt));
+}
+function getRuleFromCheckbox(chk){
+	return (!chk.attr('checked') ? '#' : '') + chk.attr('ip') + ' ' + chk.attr('domain') + (chk.attr('cmnt') ? (' #' + chk.attr('cmnt')) : '');
+}
+function findGroup(dm){
+	var fs = $('fieldset[domain="' + dm + '"]')
+	return fs.size() ? fs : null;
+}
+function createNewGroup(dm){
+	return $('<fieldset class="domaingroups" domain="' + dm + '"><legend><span style="color:blue;font-weight:500;">' + dm + '</span>&nbsp;<span class="act">' +
+	'&nbsp;<a href="#" title="Bottom" onclick="groupMoveTo(this,\'bottom\');return false;">Bottom</a>&nbsp;' +
+	'&nbsp;<a href="#" title="DOWN" onclick="groupMoveTo(this,\'down\');return false;">Down</a>&nbsp;' +
+	'&nbsp;<a href="#" title="UP" onclick="groupMoveTo(this,\'up\');return false;">Up</a>&nbsp;' +
+	'&nbsp;<a href="#" title="TOP" onclick="groupMoveTo(this,\'top\');return false;">Top</a>' +
+	'</span></legend></fieldset>').appendTo('#divBody').hover(function(){
+		$(this).addClass('fieldsetover');
+	}, function(){
+		$(this).removeClass('fieldsetover');
+	});
+}
+function groupMoveTo(lnk, key){
+	var fs = $(lnk).parents('fieldset');
+	if ((key == 'up' || key == 'top') && !fs.prev('fieldset').size()) {
+		return msg('Top already');
+	}
+	if ((key == 'down' || key == 'bottom') && !fs.next('fieldset').size()) {
+		return msg('Bottom already');
+	}
+	groupMoveTo.map[key].call(lnk, fs);
+	saveDomToHost('', true);
+}
+function addOneRuleToGroup(fs, oRule, isUnique){
+	if (!isUnique) {
+		var chks = $(':checkbox', fs), $el = chks.filter('[ip="' + oRule.ip + '"]');
+		if ($el.size()) {
+			$el.attr('cmnt',oRule.cmnt).parent('div').attr('title',oRule.cmnt);
+			if ((oRule.sharp != '#') != $el.attr('checked')) {
+				var checked = $el.get(0).checked = oRule.sharp != '#';
+				checked && chks.not($el).attr('checked', false).parent('label').removeClass('effective');
+				$el.parent('label')[checked ? 'addClass' : 'removeClass']('effective');
+			}
+			return;
+		}
+	}
+	var id = 'chk_' + idIndex++;
+	var html = '<div title="' + (oRule.cmnt || '') + '"><label for="' + id + '" hidefocus="true" ' +
+		(oRule.sharp ? '' : 'class="effective"') + '><input type="checkbox" id="' + id + '" ' + (oRule.sharp ? '' : 'checked') +
+		' ip="' + oRule.ip + '" domain="' + oRule.domain + '" cmnt="' + oRule.cmnt + '"><span>' + oRule.ip +
+		'</span>&nbsp;<a href="#" class="lnkcopy hidden" title="Copy" onclick="copyRule(this);return false;">C</a>'+
+		'<a href="#" class="lnkdelete hidden" title="Delete" onclick="delRule(this);return false;">X</a></label></div>';
+	if (!oRule.sharp) $(':checkbox[checked]', fs).attr({'checked': false}).parent().removeClass('effective');
+	var div = $(html).appendTo(fs);
+	div.find('label').hover(function(){
+		$(this).addClass('ruleover').find('a').removeClass('hidden');
+	}, function(){
+		$(this).removeClass('ruleover').find('a').addClass('hidden');
+	});
+	fs.find(':checkbox').unbind('click').applyRule();
+	return $(':checkbox', div);
+}
+function copyRule(lnk){
+	var rule = getRuleFromCheckbox($(':checkbox', $(lnk).parent('label')));
+	rule.charAt(0) == '#' && (rule = rule.slice(1));
+	window.clipboardData.setData("Text", rule) || alert('Copy host Rule：' + rule + 'to Clipboard !\nCTRL+C to Copy context');
+	msg("Data:【" + rule + "】has been copied");
+}
+function delRule(lnk){
+	var rule = getRuleFromCheckbox($(':checkbox', lnk.parentNode));
+	if (!confirm('Are you sure delete this rule?\n' + rule)) return false;
+	var div = $(lnk.parentNode.parentNode), fs = div.parent();
+	div.remove();
+	if (fs.find('div').size() == 0) {
+		var dm = fs.attr('domain');
+		fs.remove();
+		mapDomainFieldset[dm] = null;
+		delete mapDomainFieldset[dm];
+	}
+	saveDomToHost('Delete Host');
+}
+function getGroup(dm){
+	return mapDomainFieldset[dm] || (mapDomainFieldset[dm] = findGroup(dm) || createNewGroup(dm));
+}
+function addOneRule(oRule, isUnique){
+	return oRule && addOneRuleToGroup(getGroup(oRule.domain), oRule, isUnique);
+}
+function loadHostFile(text){
+	if (text.empty()) return false;
+	var arGroup = text.match(/#\{[\s\S]+?#\}/g) || [], arHtml = [], rSplit = /(\r)?\n/;
+	$.each(arGroup, function(j, m, ar){
+		ar = m.split(rSplit);
+		$.each(ar.slice(1, ar.length - 1), function(i, n){
+			addOneRule(getObjByRule(n), true);
+		});
+	});
+	return true;
+}
+function initHostToDom(text){
+	return (text = formatHostFile()) && loadHostFile(text);
+}
+function getHostPath(path){
+	if (fso.FileExists(path)) return path;
+	var Sh = new ActiveXObject("WScript.Shell"),
+		key = "HKEY_CURRENT_USER\\Software\\SmartHost\\",
+		sysroot = Sh.RegRead(key+"InstallPath");
+	path = sysroot + "\\Scripts\\Smarthost\\hosts";
+	if (fso.FileExists(path)) return path;
+	try {
+		if (fso.FileExists(path = Sh.RegRead(key + "HostPath")+ "\\Scripts\\hosts")) return path + "\\Scripts\\hosts";
+	} catch (e) {
+		path = null;
+		var text = '';
+		do {
+			if (path == null)
+				text = 'Can not find host file';
+			else if (text.empty()) {
+				text = 'Hosts can not be empty';
+			} else {
+				text = 'invalid Hosts path';
+			}
+			path = prompt(text, "Absolute path of your Hosts file path");
+			if (path == null) return false;
+		} while (!fso.FileExists(path));
+		Sh.RegWrite(key + "HostPath", path, "REG_SZ");
+		return path;
+	}
+	return false;
+}
+function initGlobleVar(){
+	window.fso = new ActiveXObject("Scripting.FileSystemObject");
+	var Sh = new ActiveXObject("WScript.Shell"),
+		key = "HKEY_CURRENT_USER\\Software\\SmartHost\\",
+		sysroot = Sh.RegRead(key+"InstallPath");
+	window.hostpath = sysroot + "\\Scripts\\Smarthost\\hosts";
+    window.formpath = sysroot + "\\Captures\\Responses\\index.html"
+    window.donepath = sysroot + "\\Captures\\Responses\\done.html"
+	if (!hostpath) {
+		msg('init error, can not find hosts file！');
+		return false;
+	}
+	window.idIndex = 0;
+	window.isTextModeSaved = false;
+	window.VERSION = 3.3;
+	window.mapDomainFieldset = {};
+	return true;
+}
+function initBottomBanner(){
+	var fns = [function(){
+		$('#divFooter button').slice(0, 6).toggleClass('hidden');
+		$('#divTextMode,#divBody').toggleClass('hidden');
+		$('#taHostText').val(getHostText().trim());
+	}, function(){
+		if (isTextModeSaved) {
+			location.reload();
+			return;
+		}
+		$('#divFooter button').slice(0, 6).toggleClass('hidden');
+		$('#divTextMode,#divBody').toggleClass('hidden');
+	}, function(){
+		var ar = (window.clipboardData.getData("text") || '').split('\n'), arRules = [];
+		$.each(ar, function(i, n){
+			(n = n.trim()).isRule() && arRules.push(n);
+		});
+		if (arRules.length > 1) {
+			if (confirm('Add All Rules from Clipboard to Hosts？\n\n  ' + arRules.join('\n  '))) {
+				$.each(arRules, function(i, n){
+					addOneRule(getObjByRule(n.trim()));
+				});
+				saveDomToHost('add Batch Rules');
+				return;
+			} else {
+				var html = '<div class="divFloatAdd"><fieldset><legend>Select Rules：</legend><p><input type="checkbox">' + arRules.join('</p><p><input type="checkbox">') + '</p><p class="toolsbar"><button>OK</button><button>Cancel</button></p></fieldset></div>';
+				$(html).modal(function(btn){
+					var chks = $(':checkbox', this), isChanged = false;
+					$.each(chks, function(i, n){
+						if (!n.checked) return;
+						isChanged = isChanged || addOneRule(getObjByRule(arRules[i].trim()));
+					});
+					if (isChanged) saveDomToHost();
+					return true;
+				});
+			}
+		} else if (arRules.length == 1 && confirm('Add One Rule from your Clipboard to Host?\n\n  ' + arRules[0])) {
+			addOneRule(getObjByRule(arRules[0].trim()));
+			saveDomToHost('Add one host');
+		} else {
+			var oRule = arRules[0] ? getObjByRule(arRules[0]) : {
+				sharp: true,
+				ip: '',
+				domain: '',
+				cmnt: ''
+			};
+			var html = '<div class="divFloatAdd"><fieldset><legend>Specify Host：</legend>' +
+			'<p><label>Default：</label><input type="checkbox"' +
+			(oRule.sharp ? '' : ' checked="true"') +
+			'></p>' +
+			'<p><label>IP：</label><input class="text" maxlength="15" value="' +
+			oRule.ip +
+			'"></p>' +
+			'<p><label>Domain：</label><input class="text" maxlength="100" value="' +
+			oRule.domain +
+			'"></p>' +
+			'<p><label>Comments：</label><input class="text" maxlength="100" value="' +
+			oRule.cmnt +
+			'"></p>' +
+			'<p class="toolsbar"><button>Add</button><button>Cancel</button></p></fieldset></div>';
+			$(html).modal(function(btn){
+				var ipts = $('input', this);
+				var obj = {
+					sharp: !ipts.eq(0).attr('checked'),
+					ip: ipts.eq(1).val(),
+					domain: ipts.eq(2).val().toLowerCase(),
+					cmnt: ipts.eq(3).val()
+				};
+				if (!/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(obj.ip)) {
+					alert("Invalid IP address");
+					ipts.eq(1).focus().select();
+					return false;
+				}
+				if (obj.domain.empty()) {
+					alert("Invalid Domain Name");
+					ipts.eq(2).focus().select();
+					return false;
+				}
+				return addOneRule(obj, 0) && saveDomToHost('add one rule') || true;
+			});
+		}
+	}, function(){
+		var ht = $('#taHostText').val().trim();
+		msg(setHostText(ht) ? 'save Success' : 'Save failed');
+        //alert(d+'=='+ht);
+        setTextToHost(ht);
+		isTextModeSaved = true;
+	}, function(){
+		location.reload();
+	}
+	];
+	$('#divFooter button').each(function(i, n){
+		$(n).click(fns[i]);
+	});
+	return true;
+}
+fmtDate.rFmt = /(\D)(\d)(?=(\D|$))/g;
+groupMoveTo.map = {
+	bottom: function(fs){
+		$('#divBody').append(fs);
+	},
+	down: function(fs){
+		fs.next().after(fs);
+	},
+	up: function(fs){
+		fs.prev().before(fs);
+	},
+	'top': function(fs){
+		$('#divBody').prepend(fs);
+	}
+};
+$.each(['get', 'set'], function(j, m){
+	$.each(['Host','Form','Done'], function(i, n){
+		window[m + n + 'Text'] = function(text){
+			return window[n.toLowerCase() + 'path'][m + 'FileText'](text);
+		};
+	});
+});
+$(function(){
+	if (!initGlobleVar()) return false;
+	initwindow();
+	if (!initHostToDom()) {
+		return false;
+	}
+	if (!initBottomBanner()) {
+		return false;
+	}
+    window.onbeforeunload=function(){
+        if(isTextModeSaved){
+            var text = $('#taHostText').val().trim();
+            setTextToHost(text);
+        } else{
+            saveDomToHost("update Silent on closed", true);
+        }
+    };
+	$(document).keypress(function(evt){
+		if (evt.keyCode == '13' && ' input button textarea select '.indexOf(' ' + evt.target.nodeName.toLowerCase() + ' ') == -1) {
+			$('#txtDomainFilter').focus();
+		}
+	});
+});
+</script>
+</body>
+</html>
