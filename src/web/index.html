@@ -12,7 +12,7 @@
 </head>
 <body>
 <h2 class="center">SmartHost Configuration</h2>
-<form method="POST" action="/" id="selectForm" onsubmit="return checkForm();" enctype="application/x-www-form-urlencoded" >
+<form method="post" action="/" name="selectForm" id="selectForm" enctype="application/x-www-form-urlencoded" onsubmit="return checkForm();">
   <fieldset>
     <legend>Model Select</legend>
     <select id="proxyModel" name="proxyModel">
@@ -23,40 +23,39 @@
   </fieldset>
   <fieldset id="remoteContent">
     <legend>Remote Proxy</legend>
-    <input type="text" id="remoteHost" placeholder="Remote ip address" maxlength="15"/>
-    <input type="tel"   id="remotePort"  placeholder="Port 8888" value="8888" maxlength="5" />
+    <input type="text" name="remoteHost" id="remoteHost" placeholder="Remote ip address" maxlength="15"/>
+    <input type="tel"  name="remotePort" id="remotePort" placeholder="Port 8888" value="8888" maxlength="5" />
   </fieldset>
   <fieldset id="localContent">
     <legend>IP/Host Pairs</legend>
-	<div class="select">game.weixin.qq.com<select name="game.weixin.qq.com"><option value="">IDC Host</option><option value="10.12.199.214" selected>10.12.199.214</option><option value="120.204.202.174">120.204.202.174</option></select></div><i></i>
-	<span holder></span>
+    <div class="select">localhost<select name="localhost"><option value="" selected>IDC Host</option><option value="127.0.0.1">127.0.0.1</option></select></div>
+    <span holder></span>
     <div class="info">
       <input class="input" type="text" key="key" placeholder="www.qq.com" />
       <input class="input" type="text" key="val"  placeholder="192.168.10.2" maxlength="15" />
-      <input class="input" type="hidden"/>
-	  <button id="addBtnOne" class="gray">Add Pair</button>
+      <input class="input" type="hidden" name="" value=""/>
+      <button id="addBtnOne" class="gray">Add Pair</button>
     </div>
-    
   </fieldset>
   <fieldset id="cleanContent">
-  	<legend>Clean Configuration</legend>
+      <legend>Clean Configuration</legend>
     All of your configuration will be cleaned.
   </fieldset>
   <div class="">
-  	<input type="hidden" id="oid"/>
-  	<button type="submit" class="blue">Submit</button>
+      <input type="hidden" id="oid" name="oid" />
+      <button type="submit" class="blue">Submit</button>
   </div>
 </form>
 <fieldset>
     <legend>Model Tips</legend>
-	<dl>
-	  <dt>Clean Configuration</dt>
-	  <dd>All of your proxy configuration will be cleaned.</dd>
-	  <dt>Romote Proxy</dt>
-	  <dd>Proxy all HTTP requests to specify IP:Port, and set hosts on that machine</dd>
-	  <dt>Local IP/Host Pairs</dt>
-	  <dd>Select IP/Hosts pairs which have been configurated by proxy admin</dd>
-	</dl>
+    <dl>
+      <dt>Clean Configuration</dt>
+      <dd>All of your proxy configuration will be cleaned.</dd>
+      <dt>Romote Proxy</dt>
+      <dd>Proxy all HTTP requests to specify IP:Port, and set hosts on that machine</dd>
+      <dt>Local IP/Host Pairs</dt>
+      <dd>Select IP/Hosts pairs which have been configurated by proxy admin</dd>
+    </dl>
 </fieldset>
 <div class="center copy">&copy; by mooringniu</div>
 <script type="text/javascript" src="js/appframework.min.js"></script> 
