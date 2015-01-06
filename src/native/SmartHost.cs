@@ -274,7 +274,11 @@ public class SmartHost : IAutoTamper
     {
         string postStr = Encoding.UTF8.GetString(oSession.RequestBody);
         this.processClientConfig(postStr, cIP);
-		oSession["x-replywithfile"] = "done.html";
+        if(oSession.oRequest.headers.Exists("X-Requested-With") && oSession.oRequest.headers["X-Requested-With"] == "XMLHttpRequest"){
+            this.responseLogRequest(oSession, "{\"ret\":0}", "application/javascript", "");
+        }else{
+            oSession["x-replywithfile"] = "done.html";
+        }
     }
     [CodeDescription("Deal With Request if client IP Configed")]
     private void tamperConfigedHost(string cIP, Session oSession)
@@ -372,7 +376,7 @@ public class SmartHost : IAutoTamper
 			}
 			else if( this.usrConfig.ContainsKey(cIP + "|" + hostname)) 
 			{
-            	this.tamperConfigedHost(cIP, oSession);		
+            	this.tamperConfigedHost(cIP, oSession);
 			}
 		}
     }
