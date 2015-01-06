@@ -19,6 +19,7 @@ tools\setVersion.exe %Ver% ..\src\native\SmartHost.cs install.nsi
         @color f2
         @copy Smarthost.exe ..\dist\Smarthost.%Ver%.exe
         @move Smarthost.exe Smarthost.%Ver%.exe
+        @del /f /q Smarthost.dll
         @echo "All Done"
     )
 )

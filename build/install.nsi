@@ -122,4 +122,6 @@ Section Uninstall
     RMDir         "$OUTDIR\Scripts\Smarthost"
     RMDir         "$OUTDIR\Captures\Responses\Configs"
     RMDir         "$OUTDIR\Captures\Responses\js"
+    RMDir         "$OUTDIR\Captures\Responses\css"
+    RMDir         "$OUTDIR\Captures\Responses\img"
 SectionEnd
