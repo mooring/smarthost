@@ -3,6 +3,8 @@ Smarthost
 
 > A dynamic host/IP mapping plugin for fiddler moved from google code 
 
+![Smarthost](https://raw.githubusercontent.com/mooring/smarthost/master/wiki/imgs/Smarthost-en.png)
+
 ## Feature ##
 1. Dynamic host/IP mapping for each request
 2. Bridge two or more sub networks 
