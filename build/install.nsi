@@ -82,7 +82,6 @@ Section SmartHost
     WriteUninstaller "$OUTDIR\Scripts\Smarthost\Uninstall.exe"
     WriteRegStr HKCU "Software\SmartHost" "HostPath" "$OUTDIR"
     WriteRegStr HKCU "Software\SmartHost" "InstallPath" "$OUTDIR"
-    Delete           "$OUTDIR\Scripts\CustomRules.js"
     IfFileExists     "$OUTDIR\Scripts\Smarthost\hosts" fex fnex
     fnex:
         File         "/oname=$OUTDIR\Scripts\Smarthost\hosts"                    ..\src\native\res\hosts
