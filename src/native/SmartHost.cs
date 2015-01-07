@@ -385,16 +385,7 @@ public class SmartHost : IAutoTamper
     }
     public void AutoTamperRequestAfter(Session oSession) { }
     public void AutoTamperResponseBefore(Session oSession) { }
-<<<<<<< HEAD
-    public void AutoTamperResponseAfter(Session oSession) {
-        string host = oSession.host.Split(new char[] { ':' })[0];
-        if (oSession.HostnameIs("config.qq.com") || oSession.HostnameIs("smart.host")) {
-            //oSession["ui-hide"] = "true";
-        }
-    }
-=======
     public void AutoTamperResponseAfter(Session oSession) { }
->>>>>>> a3d0726fc2c70cd5bc9537d7effb7efccfe2c718
     public void OnLoad() {
         FiddlerApplication.UI.mnuMain.MenuItems.Add(mnuSmartHost);
         FiddlerApplication.UI.lvSessions.AddBoundColumn("Client IP", 100, "x-clientIP");
