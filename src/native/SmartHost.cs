@@ -225,47 +225,47 @@ public class SmartHost : IAutoTamper
     {
         Dictionary<string, string> pQuery = this.splitString(postStr, new char[] { '&' }, new char[] { '=' });
         if(pQuery.ContainsKey("oid")){
-			this.saveConfig2File(postStr,pQuery["oid"]);
-		}
-		
-		List<string> keys = new List<string>(this.usrConfig.Keys);
-		foreach(string ipHost in keys){
-			if(ipHost.StartsWith(cIP+"|",StringComparison.OrdinalIgnoreCase)){
-				try{this.usrConfig.Remove(ipHost);}catch(Exception e){}
-			}
-		}
-		if(pQuery["proxyModel"]=="")
-		{
-			this.printJSLog(cIP+"'s configuration has been cleaned.");
-			return;	
-		}
-		if(pQuery.ContainsKey("proxyModel") && pQuery["proxyModel"]=="remote"
-			&&pQuery.ContainsKey("remoteHost")&&pQuery["remoteHost"].Length>0
-			&&pQuery.ContainsKey("remotePort")&&pQuery["remotePort"].Length>0 )
-		{
-			this.usrConfig[cIP+"|remoteProxy"] = pQuery["remoteHost"]+":"+pQuery["remotePort"];
-			this.printJSLog(cIP + "'s proxy Model switch to [Remote Proxy] " );
-			this.printJSLog("All IP/Host pairs configuration for "+cIP+" have been removed.");
-			this.printJSLog("All HTTP requests from "+cIP+" will be sent to : "+pQuery["remoteHost"]+":"+pQuery["remotePort"]+".");
-		}
-		else
-		{
-			string proxyStr = this.usrConfig.ContainsKey(cIP+"|remoteProxy") ? this.usrConfig[cIP+"|remoteProxy"] : "";
-			this.printJSLog(cIP + "'s proxy Model switch to [IP/Host Pairs] ");
-			this.printJSLog("Remote Proxy "+proxyStr+" has been removed.");
-			foreach (string key in pQuery.Keys) {
-				if(key!="oid" && key!="proxyModel"&&key!="remoteHost"&&key!="remotePort"&&pQuery[key].Length > 0) {
-					this.usrConfig[cIP + "|" + key] = pQuery[key];
-					this.printJSLog( key + " ===> " + pQuery[key] ); 
-				}
-			}
-		}   
+            this.saveConfig2File(postStr,pQuery["oid"]);
+        }
+        
+        List<string> keys = new List<string>(this.usrConfig.Keys);
+        foreach(string ipHost in keys){
+            if(ipHost.StartsWith(cIP+"|",StringComparison.OrdinalIgnoreCase)){
+                try{this.usrConfig.Remove(ipHost);}catch(Exception e){}
+            }
+        }
+        if(pQuery["proxyModel"]=="")
+        {
+            this.printJSLog(cIP+"'s configuration has been cleaned.");
+            return;    
+        }
+        if(pQuery.ContainsKey("proxyModel") && pQuery["proxyModel"]=="remote"
+            &&pQuery.ContainsKey("remoteHost")&&pQuery["remoteHost"].Length>0
+            &&pQuery.ContainsKey("remotePort")&&pQuery["remotePort"].Length>0 )
+        {
+            this.usrConfig[cIP+"|remoteProxy"] = pQuery["remoteHost"]+":"+pQuery["remotePort"];
+            this.printJSLog(cIP + "'s proxy Model switch to [Remote Proxy] " );
+            this.printJSLog("All IP/Host pairs configuration for "+cIP+" have been removed.");
+            this.printJSLog("All HTTP requests from "+cIP+" will be sent to : "+pQuery["remoteHost"]+":"+pQuery["remotePort"]+".");
+        }
+        else
+        {
+            string proxyStr = this.usrConfig.ContainsKey(cIP+"|remoteProxy") ? this.usrConfig[cIP+"|remoteProxy"] : "";
+            this.printJSLog(cIP + "'s proxy Model switch to [IP/Host Pairs] ");
+            this.printJSLog("Remote Proxy "+proxyStr+" has been removed.");
+            foreach (string key in pQuery.Keys) {
+                if(key!="oid" && key!="proxyModel"&&key!="remoteHost"&&key!="remotePort"&&pQuery[key].Length > 0) {
+                    this.usrConfig[cIP + "|" + key] = pQuery[key];
+                    this.printJSLog( key + " ===> " + pQuery[key] ); 
+                }
+            }
+        }   
     }
     [CodeDescription("save client Config To File")]
     private void saveConfig2File(string postStr, string oid)
     {
         oid = Regex.Replace(oid, "[^a-z0-9]+", "");
-		if(oid.Length==0){return;}
+        if(oid.Length==0){return;}
         string file = this._pluginDir + "\\Captures\\Responses\\Configs\\" + oid + ".txt";
         try{System.IO.File.WriteAllText(file, postStr);}catch(Exception e){}
     }
@@ -301,6 +301,9 @@ public class SmartHost : IAutoTamper
         oSession.responseCode = statusCode;
         oSession.oResponse.headers["Server"] = "SmartHost/1.1.0.4";
         oSession.oResponse.headers["Date"] = DateTime.Now.ToUniversalTime().ToString("r");
+        oSession.oResponse.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+        oSession.oResponse.headers["Pragma"] = "no-cache";
+        oSession.oResponse.headers["Expires"] = "0";
     }
     
     [CodeDescription("set response header and send body")]
@@ -341,48 +344,57 @@ public class SmartHost : IAutoTamper
         string hostname = oSession.hostname;
         string host = oSession.host.Split(new char[] { ':' })[0];
         bool isConfig = oSession.HostnameIs("config.qq.com") || oSession.HostnameIs("smart.host");
-		
-		if(isConfig)
-		{
-			if(oSession.HTTPMethodIs("POST")) 
-			{
-            	this.updateClientConfig(cIP, oSession);
-			}
-			else
-			{
-				string pathName = oSession.PathAndQuery.Substring(1).Split(new char[]{'?'})[0];
-				string replyFile = pathName == "" ? "index.html" : pathName.Replace('/', '\\');
-				if (File.Exists(this._pluginDir + "\\Captures\\Responses\\" + replyFile))
-				{
-					oSession["x-replywithfile"] = replyFile;
-				} 
-				else 
-				{
-					if (oSession.url.Contains("/ip/")) {
-						this.logAdapterAddress(oSession);
-					} else {
-						this.noBodyReponse(oSession,404);
-					}
-				}
-			}
-		}
-		else
-		{
-			if(this.usrConfig.ContainsKey(cIP + "|remoteProxy") && this.usrConfig[cIP + "|remoteProxy"].Length > 10)
-			{
-				oSession.bypassGateway = true;
-				oSession["x-overrideHost"] = this.usrConfig[cIP + "|remoteProxy"];
-				oSession.oRequest.headers["clientIP"] = cIP;
-			}
-			else if( this.usrConfig.ContainsKey(cIP + "|" + hostname)) 
-			{
-            	this.tamperConfigedHost(cIP, oSession);
-			}
-		}
+        
+        if(isConfig)
+        {
+            if(oSession.HTTPMethodIs("POST")) 
+            {
+                this.updateClientConfig(cIP, oSession);
+            }
+            else
+            {
+                string pathName = oSession.PathAndQuery.Substring(1).Split(new char[]{'?'})[0];
+                string replyFile = pathName == "" ? "index.html" : pathName.Replace('/', '\\');
+                if (File.Exists(this._pluginDir + "\\Captures\\Responses\\" + replyFile))
+                {
+                    oSession["x-replywithfile"] = replyFile;
+                } 
+                else 
+                {
+                    if (oSession.url.Contains("/ip/")) {
+                        this.logAdapterAddress(oSession);
+                    } else {
+                        this.noBodyReponse(oSession,404);
+                    }
+                }
+            }
+        }
+        else
+        {
+            if(this.usrConfig.ContainsKey(cIP + "|remoteProxy") && this.usrConfig[cIP + "|remoteProxy"].Length > 10)
+            {
+                oSession.bypassGateway = true;
+                oSession["x-overrideHost"] = this.usrConfig[cIP + "|remoteProxy"];
+                oSession.oRequest.headers["clientIP"] = cIP;
+            }
+            else if( this.usrConfig.ContainsKey(cIP + "|" + hostname)) 
+            {
+                this.tamperConfigedHost(cIP, oSession);
+            }
+        }
     }
     public void AutoTamperRequestAfter(Session oSession) { }
     public void AutoTamperResponseBefore(Session oSession) { }
+<<<<<<< HEAD
+    public void AutoTamperResponseAfter(Session oSession) {
+        string host = oSession.host.Split(new char[] { ':' })[0];
+        if (oSession.HostnameIs("config.qq.com") || oSession.HostnameIs("smart.host")) {
+            //oSession["ui-hide"] = "true";
+        }
+    }
+=======
     public void AutoTamperResponseAfter(Session oSession) { }
+>>>>>>> a3d0726fc2c70cd5bc9537d7effb7efccfe2c718
     public void OnLoad() {
         FiddlerApplication.UI.mnuMain.MenuItems.Add(mnuSmartHost);
         FiddlerApplication.UI.lvSessions.AddBoundColumn("Client IP", 100, "x-clientIP");
