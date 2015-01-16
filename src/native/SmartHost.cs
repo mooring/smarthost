@@ -44,6 +44,8 @@ public class SmartHost : IAutoTamper
     private MenuItem mnuSplit;
     private MenuItem mnuSplit1;
 
+    private int _num = 0 ;
+
     public SmartHost()
     {
         this.initConfig();
@@ -203,7 +205,7 @@ public class SmartHost : IAutoTamper
     [CodeDescription("Print Wireless and Lan IP address")]
     private void logAdapterAddress(Session oSession)
     {
-        this.responseLogRequest( oSession, "Wireless Proxy: " + this._wifiIP + "\n LanIP Address:" + this._lanIP + "\n", "text/plain", "");
+        this.customResponse( oSession, "Wireless Proxy: " + this._wifiIP + "\n LanIP Address:" + this._lanIP + "\n", "text/plain", "");
     }
     [CodeDescription("get smarthost install folder from registry")]
     private void getPluginPath()
@@ -275,7 +277,7 @@ public class SmartHost : IAutoTamper
         string postStr = Encoding.UTF8.GetString(oSession.RequestBody);
         this.processClientConfig(postStr, cIP);
         if(oSession.oRequest.headers.Exists("X-Requested-With") && oSession.oRequest.headers["X-Requested-With"] == "XMLHttpRequest"){
-            this.responseLogRequest(oSession, "{\"ret\":0}", "application/javascript", "");
+            this.customResponse(oSession, "{\"ret\":0}", "application/javascript", "");
         }else{
             oSession["x-replywithfile"] = "done.html";
         }
@@ -294,7 +296,7 @@ public class SmartHost : IAutoTamper
             }
         }
     }
-    private void noBodyReponse(Session oSession, Int32 statusCode)
+    private void setCommonHeaders(Session oSession, Int32 statusCode)
     {
         oSession.utilCreateResponseAndBypassServer();
         oSession.bypassGateway = true;
@@ -307,12 +309,12 @@ public class SmartHost : IAutoTamper
     }
     
     [CodeDescription("set response header and send body")]
-    private void responseLogRequest(Session oSession, string body, string type, string cb)
+    private void customResponse(Session oSession, string body, string type, string cb)
     {
         if (cb.Length > 0) {
             body = "try{" + cb + "(" + body + ");}catch(e){}";
         }
-        this.noBodyReponse(oSession, 200);
+        this.setCommonHeaders(oSession, 200);
         oSession.oResponse.headers.HTTPResponseStatus = "OK";
         oSession.oResponse.headers["Content-Type"] = type;
         oSession.oResponse.headers["Content-Length"] = "" + body.Length;
@@ -344,7 +346,7 @@ public class SmartHost : IAutoTamper
         string hostname = oSession.hostname;
         string host = oSession.host.Split(new char[] { ':' })[0];
         bool isConfig = oSession.HostnameIs("config.qq.com") || oSession.HostnameIs("smart.host");
-        
+        this.printJSLog(cIP+"=="+hostname+"---"+(isConfig ? "isConfig=true":"isConfig=false"));
         if(isConfig)
         {
             if(oSession.HTTPMethodIs("POST")) 
@@ -364,7 +366,7 @@ public class SmartHost : IAutoTamper
                     if (oSession.url.Contains("/ip/")) {
                         this.logAdapterAddress(oSession);
                     } else {
-                        this.noBodyReponse(oSession,404);
+                        this.setCommonHeaders(oSession,404);
                     }
                 }
             }
