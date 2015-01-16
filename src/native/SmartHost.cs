@@ -341,12 +341,11 @@ public class SmartHost : IAutoTamper
     [CodeDescription("Berfore Request Tamper.")]
     public void AutoTamperRequestBefore(Session oSession)
     {
-        if (!this._tamperHost || oSession.isTunnel || oSession.isHTTPS || oSession.isFTP ) { return; }
+        if (!this._tamperHost) { return; }
         string cIP = !String.IsNullOrEmpty(oSession.m_clientIP) ? oSession.m_clientIP : oSession.clientIP;
         string hostname = oSession.hostname;
         string host = oSession.host.Split(new char[] { ':' })[0];
         bool isConfig = oSession.HostnameIs("config.qq.com") || oSession.HostnameIs("smart.host");
-        this.printJSLog(cIP+"=="+hostname+"---"+(isConfig ? "isConfig=true":"isConfig=false"));
         if(isConfig)
         {
             if(oSession.HTTPMethodIs("POST")) 
