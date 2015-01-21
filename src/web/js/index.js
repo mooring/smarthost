@@ -118,7 +118,7 @@ function checkHosts() {
 function qqAjax() {
 	var tform = $('#selectForm').serialize();
 	$.ajax({
-		url : '/?' + (new Date().getTime()),
+		url : '/?oid=' + gQuery.oid + '&' + (new Date().getTime()),
 		type : 'POST',
 		data : tform,
 		success : function (xhr, res) {

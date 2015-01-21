@@ -314,6 +314,12 @@ public class SmartHost : IAutoTamper
         if (cb.Length > 0) {
             body = "try{" + cb + "(" + body + ");}catch(e){}";
         }
+        this.customResponse(oSession, body, type);
+    }
+
+    [CodeDescription("set response header and send body")]
+    private void customResponse(Session oSession, string body, string type)
+    {
         this.setCommonHeaders(oSession, 200);
         oSession.oResponse.headers.HTTPResponseStatus = "OK";
         oSession.oResponse.headers["Content-Type"] = type;
@@ -341,7 +347,10 @@ public class SmartHost : IAutoTamper
     [CodeDescription("Berfore Request Tamper.")]
     public void AutoTamperRequestBefore(Session oSession)
     {
-        if (!this._tamperHost) { return; }
+        if (!this._tamperHost || oSession.isTunnel || oSession.isHTTPS) {
+            oSession.bypassGateway = false;
+            return; 
+        }
         string cIP = !String.IsNullOrEmpty(oSession.m_clientIP) ? oSession.m_clientIP : oSession.clientIP;
         string hostname = oSession.hostname;
         string host = oSession.host.Split(new char[] { ':' })[0];
