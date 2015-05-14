@@ -28,7 +28,7 @@ function getCookie(key) {
 }
 function setCookie(key, value, days){
     var d = new Date();
-    d.setTime(d - 86400000 * days);
+    d.setTime(d + 86400000 * days);
     document.cookie = key + '=; domain=' + document.domain + '; expires=' + d.toGMTString();
 }
 function delKey(key) {
