@@ -21,7 +21,7 @@ function getKey(key) {
 
 function getCookie(key) {
     var cookie = document.cookie,
-        mat = (new RegExp(key + '=([^;]+)')).exec(document.cookie);
+        mat = (new RegExp(key + '=([^;]+)')).exec(cookie);
     if (mat) {
         return mat[1];
     } else {
