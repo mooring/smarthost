@@ -2,9 +2,7 @@ function setKey(key, value) {
     try {
         localStorage.setItem(key, value);
     } catch (e) {}
-    var d = new Date();
-    d.setTime(d.getTime() + 86400000 * 31);
-    document.cookie = key + '=' + value + '; domain=' + document.domain + '; expires=' + d.toGMTString();
+    setCookie(key, value, 31);
 }
 
 function getKey(key) {
@@ -28,14 +26,16 @@ function getCookie(key) {
         return null;
     }
 }
-
+function setCookie(key, value, days){
+    var d = new Date();
+    d.setTime(d - 86400000 * days);
+    document.cookie = key + '=; domain=' + document.domain + '; expires=' + d.toGMTString();
+}
 function delKey(key) {
     try {
         localStorage.removeItem(key);
     } catch (e) {}
-    var d = new Date();
-    d.setTime(d - 86400000 * 365);
-    document.cookie = key + '=; domain=' + document.domain + '; expires=' + d.toGMTString();
+    setCookie(key, '', -365);
 }
 
 function clearStore() {
