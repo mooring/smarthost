@@ -31,6 +31,7 @@ function setCookie(key, value, days){
     d.setTime(d + 86400000 * days);
     document.cookie = key + '=; domain=' + document.domain + '; expires=' + d.toGMTString();
 }
+
 function delKey(key) {
     try {
         localStorage.removeItem(key);
@@ -94,23 +95,24 @@ function strToMap(str, sp1, sp2) {
     }
     return obj;
 }
-(function () {
-    window.gQuery = strToMap(location.search.substr(1));
-    window.gHash = strToMap(location.hash.substr(1));
-    window.gUA = navigator.userAgent;
+(function (win, doc) {
+    win.gQuery = strToMap(location.search.substr(1));
+    win.gHash = strToMap(location.hash.substr(1));
+    win.gUA = navigator.userAgent;
     if (/MicroMessenger/i.test(gUA)) {
-        document.addEventListener('WeixinJSBridgeReady', function onBridgeReady() {
-            WeixinJSBridge.on('menu:share:appmessage', function (argv) {
+        doc.addEventListener('WeixinJSBridgeReady', function() {
+            var wxbridge = WeixinJSBridge;
+            wxbridge.on('menu:share:appmessage', function (argv) {
                 return;
             });
-            WeixinJSBridge.on('menu:share:timeline', function (argv) {
+            wxbridge.on('menu:share:timeline', function (argv) {
                 return;
             });
-            WeixinJSBridge.on('menu:share:weibo', function (argv) {
+            wxbridge.on('menu:share:weibo', function (argv) {
                 return;
             });
-            WeixinJSBridge.invoke('hideOptionMenu');
-            WeixinJSBridge.invoke('hideToolbar');
+            wxbridge.invoke('hideOptionMenu');
+            wxbridge.invoke('hideToolbar');
         });
     }
-})();
+})(window, document);
