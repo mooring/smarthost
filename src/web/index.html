@@ -12,7 +12,7 @@
 </head>
 <body>
 <h2 class="center">SmartHost Configuration</h2>
-<form method="post" action="/" name="selectForm" id="selectForm" enctype="application/x-www-form-urlencoded" onsubmit="return checkForm();">
+<form method="post" action="/" id="selectForm" enctype="application/x-www-form-urlencoded" onsubmit="return checkForm();">
   <fieldset>
     <legend>Model Select</legend>
     <select id="proxyModel" name="proxyModel">
@@ -30,10 +30,10 @@
     <legend>IP/Host Pairs</legend>
     <span holder></span>
     <div class="info">
-      <input class="input" type="text" key="key" placeholder="www.qq.com" />
-      <input class="input" type="text" key="val"  placeholder="192.168.10.2" maxlength="15" />
+      <input class="input" type="text" key="key" placeholder="weixin.qq.com" />
+      <input class="input" type="text" key="val" placeholder="192.168.10.2" maxlength="15" />
       <input class="input" type="hidden" name="" value=""/>
-      <button id="addBtnOne" class="gray">Add Pair</button>
+      <button class="gray" id="addBtnOne">Add Pair</button>
     </div>
   </fieldset>
   <fieldset id="cleanContent">
