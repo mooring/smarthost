@@ -26,6 +26,7 @@ function getCookie(key) {
         return null;
     }
 }
+
 function setCookie(key, value, days){
     var d = new Date();
     d.setTime(d + 86400000 * days);
