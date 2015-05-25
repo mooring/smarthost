@@ -23,8 +23,8 @@ using Fiddler;
 [assembly: AssemblyCopyright("Copyright Mooringniu@Tencent 2014")]
 [assembly: AssemblyProduct("SmartHost")]
 [assembly: AssemblyTrademark("SmartHost")]
-[assembly: AssemblyVersion("1.1.0.4")]
-[assembly: AssemblyFileVersion("1.1.0.4")]
+[assembly: AssemblyVersion("1.1.0.5")]
+[assembly: AssemblyFileVersion("1.1.0.5")]
 [assembly: Fiddler.RequiredVersion("2.4.1.1")]
 
 public class SmartHost : IAutoTamper
@@ -138,7 +138,7 @@ public class SmartHost : IAutoTamper
             "Smarthost For Fiddler\n--------------------------------------------------"
             + "\nA Remote IP/Host REMAP Add-on for Fiddler"
             + "\nMaking mobile developming More Easier.\n"
-            + "\nFileVersion: 1.1.0.4\n"
+            + "\nFileVersion: 1.1.0.5\n"
             + "\nAny suggestion contact mooringniu@gmail.com",
             "About SmartHost",
             MessageBoxButtons.OK,
@@ -194,7 +194,7 @@ public class SmartHost : IAutoTamper
         }else{
             httpWebRequest.Proxy.Credentials = CredentialCache.DefaultCredentials;
         }
-        httpWebRequest.UserAgent = "SmartHost/1.1.0.4";
+        httpWebRequest.UserAgent = "SmartHost/1.1.0.5";
         httpWebRequest.Referer = "http://smart.host/";
         try{
             HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
@@ -287,12 +287,12 @@ public class SmartHost : IAutoTamper
     {
         string hostname = oSession.hostname;
         if (this.usrConfig.ContainsKey(cIP + "|" + hostname)) {
-            if (this.usrConfig[cIP + "|" + hostname] == "" || this.usrConfig[cIP + "|" + hostname] == null) {
-                oSession.bypassGateway = false;
-                oSession["x-overrideHost"] = null;
-            } else {
+            if (this.usrConfig[cIP + "|" + hostname] != "" && this.usrConfig[cIP + "|" + hostname] != null) {
                 oSession.bypassGateway = true;
                 oSession["x-overrideHost"] = this.usrConfig[cIP + "|" + hostname];
+                if(oSession.PathAndQuery.IndexOf("http",StringComparison.OrdinalIgnoreCase)!=0){
+                    oSession.PathAndQuery = oSession.fullUrl;
+                }
             }
         }
     }
@@ -300,8 +300,8 @@ public class SmartHost : IAutoTamper
     {
         oSession.utilCreateResponseAndBypassServer();
         oSession.bypassGateway = true;
-        oSession.responseCode = statusCode;
-        oSession.oResponse.headers["Server"] = "SmartHost/1.1.0.4";
+        oSession.oResponse.headers.HTTPResponseStatus = statusCode+ " By Smarthost";
+        oSession.oResponse.headers["Server"] = "SmartHost/1.1.0.5";
         oSession.oResponse.headers["Date"] = DateTime.Now.ToUniversalTime().ToString("r");
         oSession.oResponse.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
         oSession.oResponse.headers["Pragma"] = "no-cache";
@@ -321,7 +321,6 @@ public class SmartHost : IAutoTamper
     private void customResponse(Session oSession, string body, string type)
     {
         this.setCommonHeaders(oSession, 200);
-        oSession.oResponse.headers.HTTPResponseStatus = "OK";
         oSession.oResponse.headers["Content-Type"] = type;
         oSession.oResponse.headers["Content-Length"] = "" + body.Length;
         oSession.utilSetResponseBody(body);
@@ -386,6 +385,9 @@ public class SmartHost : IAutoTamper
                 oSession.bypassGateway = true;
                 oSession["x-overrideHost"] = this.usrConfig[cIP + "|remoteProxy"];
                 oSession.oRequest.headers["clientIP"] = cIP;
+                if(oSession.PathAndQuery.IndexOf("http",StringComparison.OrdinalIgnoreCase) !=0 ){
+                    oSession.PathAndQuery = oSession.fullUrl;
+                }
             }
             else if( this.usrConfig.ContainsKey(cIP + "|" + hostname)) 
             {
