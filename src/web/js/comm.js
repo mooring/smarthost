@@ -2,9 +2,7 @@ function setKey(key, value) {
     try {
         localStorage.setItem(key, value);
     } catch (e) {}
-    var d = new Date();
-    d.setTime(d.getTime() + 86400000 * 31);
-    document.cookie = key + '=' + value + '; domain=' + document.domain + '; expires=' + d.toGMTString();
+    setCookie(key, value, 31);
 }
 
 function getKey(key) {
@@ -21,7 +19,7 @@ function getKey(key) {
 
 function getCookie(key) {
     var cookie = document.cookie,
-        mat = (new RegExp(key + '=([^;]+)')).exec(document.cookie);
+        mat = (new RegExp(key + '=([^;]+)')).exec(cookie);
     if (mat) {
         return mat[1];
     } else {
@@ -29,13 +27,17 @@ function getCookie(key) {
     }
 }
 
+function setCookie(key, value, days){
+    var d = new Date();
+    d.setTime(d + 86400000 * days);
+    document.cookie = key + '=; domain=' + document.domain + '; expires=' + d.toGMTString();
+}
+
 function delKey(key) {
     try {
         localStorage.removeItem(key);
     } catch (e) {}
-    var d = new Date();
-    d.setTime(d - 86400000 * 365);
-    document.cookie = key + '=; domain=' + document.domain + '; expires=' + d.toGMTString();
+    setCookie(key, '', -365);
 }
 
 function clearStore() {
@@ -94,23 +96,24 @@ function strToMap(str, sp1, sp2) {
     }
     return obj;
 }
-(function () {
-    window.gQuery = strToMap(location.search.substr(1));
-    window.gHash = strToMap(location.hash.substr(1));
-    window.gUA = navigator.userAgent;
+(function (win, doc) {
+    win.gQuery = strToMap(location.search.substr(1));
+    win.gHash = strToMap(location.hash.substr(1));
+    win.gUA = navigator.userAgent;
     if (/MicroMessenger/i.test(gUA)) {
-        document.addEventListener('WeixinJSBridgeReady', function onBridgeReady() {
-            WeixinJSBridge.on('menu:share:appmessage', function (argv) {
+        doc.addEventListener('WeixinJSBridgeReady', function() {
+            var wxbridge = WeixinJSBridge;
+            wxbridge.on('menu:share:appmessage', function (argv) {
                 return;
             });
-            WeixinJSBridge.on('menu:share:timeline', function (argv) {
+            wxbridge.on('menu:share:timeline', function (argv) {
                 return;
             });
-            WeixinJSBridge.on('menu:share:weibo', function (argv) {
+            wxbridge.on('menu:share:weibo', function (argv) {
                 return;
             });
-            WeixinJSBridge.invoke('hideOptionMenu');
-            WeixinJSBridge.invoke('hideToolbar');
+            wxbridge.invoke('hideOptionMenu');
+            wxbridge.invoke('hideToolbar');
         });
     }
-})();
+})(window, document);

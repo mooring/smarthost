@@ -8,7 +8,7 @@ Smarthost
 ## Feature ##
 1. Dynamic host/IP mapping for each request
 2. Bridge two or more sub networks 
-3. Push mobile requests to pc to manupulate
+3. Push mobile requests to pc to manipulate
 4. Configurate host/IP at mobile client
 5. Suitable for tester and developers
 
