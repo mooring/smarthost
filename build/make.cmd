@@ -17,9 +17,8 @@ tools\setVersion.exe %Ver% ..\src\native\SmartHost.cs install.nsi
         @echo "Packaging Exe Error"
     ) ELSE (
         @color f2
-        @copy Smarthost.exe ..\dist\Smarthost.%Ver%.exe
-        @move Smarthost.exe Smarthost.%Ver%.exe
-        @del /f /q Smarthost.dll
+        @move Smarthost.exe ..\dist\Smarthost.%Ver%.exe
+        @del /f /q Smarthost.dll Smarthost.%Ver%.exe
         @echo "All Done"
     )
 )
