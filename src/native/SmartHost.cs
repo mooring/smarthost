@@ -35,7 +35,10 @@ public class SmartHost : IAutoTamper
     private string _pluginDir = String.Empty;
     private string _wifiIP = String.Empty;
     private string _lanIP = String.Empty;
+    private int    _clearProxyErrorCount = 500;
+    private int    _hideSessionKBSize = 0;
     private Dictionary<string, string> usrConfig;
+    private Dictionary<string, int> errorCout;
     private MenuItem mnuSmartHost;
     private MenuItem mnuSmartHostEnabled;
     private MenuItem mnuSmartHostConfig;
@@ -56,8 +59,11 @@ public class SmartHost : IAutoTamper
     private void initConfig()
     {
         this.usrConfig   = new Dictionary<string, string>();
+        this.errorCout   = new Dictionary<string, int>();
         this._tamperHost = FiddlerApplication.Prefs.GetBoolPref("extensions.smarthost.enabled", false);
         this._notifySrv  = FiddlerApplication.Prefs.GetStringPref("extensions.smarthost.setip", "");
+        this._clearProxyErrorCount = FiddlerApplication.Prefs.GetInt32Pref("extensions.smarthost.clearProxyErrorCount", 500);
+        this._hideSessionKBSize = FiddlerApplication.Prefs.GetInt32Pref("extensions.smarthost.hideSessionKBSize", 0) * 1024;
         if (this._notifySrv.Length>0 && this._notifySrv.StartsWith("http:",StringComparison.OrdinalIgnoreCase)) {
             //NetworkChange.NetworkAvailabilityChanged += new NetworkAvailabilityChangedEventHandler(this.networkAvailabilityChangeHandler);
             NetworkChange.NetworkAddressChanged += new NetworkAddressChangedEventHandler(this.networdAddressChangeHandler);
@@ -229,13 +235,13 @@ public class SmartHost : IAutoTamper
         if(pQuery.ContainsKey("oid")){
             this.saveConfig2File(postStr,pQuery["oid"]);
         }
-        
         List<string> keys = new List<string>(this.usrConfig.Keys);
         foreach(string ipHost in keys){
             if(ipHost.StartsWith(cIP+"|",StringComparison.OrdinalIgnoreCase)){
                 try{this.usrConfig.Remove(ipHost);}catch(Exception e){}
             }
         }
+        this.errorCout[cIP] = 1;
         if(pQuery["proxyModel"]=="")
         {
             this.printJSLog(cIP+"'s configuration has been cleaned.");
@@ -261,7 +267,8 @@ public class SmartHost : IAutoTamper
                     this.printJSLog( key + " ===> " + pQuery[key] ); 
                 }
             }
-        }   
+        }
+        
     }
     [CodeDescription("save client Config To File")]
     private void saveConfig2File(string postStr, string oid)
@@ -347,7 +354,6 @@ public class SmartHost : IAutoTamper
     public void AutoTamperRequestBefore(Session oSession)
     {
         if (!this._tamperHost || oSession.isTunnel || oSession.isHTTPS) {
-            oSession.bypassGateway = false;
             return; 
         }
         string cIP = !String.IsNullOrEmpty(oSession.m_clientIP) ? oSession.m_clientIP : oSession.clientIP;
@@ -396,12 +402,40 @@ public class SmartHost : IAutoTamper
         }
     }
     public void AutoTamperRequestAfter(Session oSession) { }
-    public void AutoTamperResponseBefore(Session oSession) { }
-    public void AutoTamperResponseAfter(Session oSession) { }
+    public void AutoTamperResponseBefore(Session oSession) {
+        if (!this._tamperHost || oSession.isTunnel || oSession.isHTTPS || this._hideSessionKBSize == 0) {
+            return; 
+        }
+        if(oSession.oResponse.headers.Exists("Content-Length")){
+            int len = Int32.Parse(oSession.oResponse.headers["Content-Length"]);
+            if( len > this._hideSessionKBSize){
+                oSession["ui-hide"] = "True";
+                this.printJSLog("\n"+oSession.fullUrl+"\nRequest is Hidden by Content Length "+len+" > " + this._hideSessionKBSize);
+            }
+        }
+    }
+    public void AutoTamperResponseAfter(Session oSession) {
+        if (!this._tamperHost || oSession.isTunnel || oSession.isHTTPS) {
+            return; 
+        }
+        string cIP = !String.IsNullOrEmpty(oSession.m_clientIP) ? oSession.m_clientIP : oSession.clientIP;
+        if(oSession.responseCode >= 500){
+            this.errorCout[cIP]++ ;
+            if(this.errorCout.ContainsKey(cIP) && this.errorCout[cIP]>this._clearProxyErrorCount)
+            {
+                List<string> keys = new List<string>(this.usrConfig.Keys);
+                foreach(string ipHost in keys){
+                    if(ipHost.StartsWith(cIP+"|",StringComparison.OrdinalIgnoreCase)){
+                        try{this.usrConfig.Remove(ipHost);}catch{}
+                    }
+                }
+            }
+        }
+    }
     public void OnLoad() {
         FiddlerApplication.UI.mnuMain.MenuItems.Add(mnuSmartHost);
         FiddlerApplication.UI.lvSessions.AddBoundColumn("Client IP", 100, "x-clientIP");
-        FiddlerApplication.UI.lvSessions.AddBoundColumn("Server IP", 110, "x-HostIP");
+        FiddlerApplication.UI.lvSessions.AddBoundColumn("X-HostIP", 110, "x-HostIP");
         FiddlerApplication.UI.lvSessions.SetColumnOrderAndWidth("Client IP", 2, -1);
         FiddlerApplication.UI.lvSessions.SetColumnOrderAndWidth("Host", 3, -1);
         FiddlerApplication.UI.lvSessions.SetColumnOrderAndWidth("Server IP", 4, -1);
