@@ -159,6 +159,8 @@ public class SmartHost : IAutoTamper
     [CodeDescription("set WireLess & LanIP for future Use")]
     private void getAdapterAddress()
     {
+        this._wifiIP = String.Empty;
+        this._lanIP = String.Empty;
         foreach(NetworkInterface NI in NetworkInterface.GetAllNetworkInterfaces()) {
             if(NI.NetworkInterfaceType==NetworkInterfaceType.Wireless80211) {
                 foreach(UnicastIPAddressInformation IP in NI.GetIPProperties().UnicastAddresses) {
