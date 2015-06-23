@@ -25,13 +25,13 @@ UninstallText         "Are you Sure" "Smarthost path:"
 UninstPage            uninstConfirm
 UninstPage            instfiles
 
-VIProductVersion                      1.1.0.7
+VIProductVersion                      1.1.0.8
 VIAddVersionKey ProductName           "SmartHost"
 VIAddVersionKey Comments              "All Right Reserved By Mooring"
 VIAddVersionKey CompanyName           "Tencent .Ltd"
 VIAddVersionKey FileDescription       "A Simple Host Mapping Tool for Fiddler"
-VIAddVersionKey FileVersion           1.1.0.7
-VIAddVersionKey ProductVersion        1.1.0.7
+VIAddVersionKey FileVersion           1.1.0.8
+VIAddVersionKey ProductVersion        1.1.0.8
 VIAddVersionKey LegalCopyright        "Copyright By mooringniu 2013"
 VIAddVersionKey InternalName          "SmartHost.exe"
 VIAddVersionKey OriginalFilename      "SmartHost.exe"
