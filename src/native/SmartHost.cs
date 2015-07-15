@@ -424,7 +424,7 @@ public class SmartHost : IAutoTamper
                     oSession["x-overrideHost"] = this.usrConfig[cIP + "|remoteProxy"];
                 }
                 oSession.oRequest.headers["clientIP"] = cIP;
-                this.printJSLog(oSession.hostname+"---"+oSession.PathAndQuery +"-->>>"+oSession.PathAndQuery.IndexOf("http",StringComparison.OrdinalIgnoreCase).ToString()+"<<<");
+                //this.printJSLog(oSession.hostname+"---"+oSession.PathAndQuery +"-->>>"+oSession.PathAndQuery.IndexOf("http",StringComparison.OrdinalIgnoreCase).ToString()+"<<<");
                 if(oSession.PathAndQuery.StartsWith("/")){
                     oSession.PathAndQuery = oSession.fullUrl;
                 }

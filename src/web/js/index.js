@@ -1,6 +1,6 @@
 function loadConfig() {
     $.ajax({
-        url : 'Configs/' + gQuery.oid + '.txt?' + ('' + Math.random()).substr(-5),
+        url : 'Configs/' + gQuery.oid.replace(/[^a-z0-9]+/g,'') + '.txt?' + ('' + Math.random()).substr(-5),
         dataType : 'text',
         type : 'GET',
         success : restoreHost
