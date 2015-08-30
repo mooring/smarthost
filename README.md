@@ -5,6 +5,8 @@ Smarthost
 
 ![Smarthost](https://raw.githubusercontent.com/mooring/smarthost/master/wiki/imgs/Smarthost-en.png)
 
+It's listed at the Fiddler Official Add-on page **[http://www.telerik.com/fiddler/add-ons](http://www.telerik.com/fiddler/add-ons)**
+
 ## Feature ##
 1. Dynamic host/IP mapping for each request
 2. Bridge two or more sub networks 
