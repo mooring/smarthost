@@ -46,6 +46,7 @@ public class SmartHost : IAutoTamper
     private MenuItem mnuSmartHostAbout;
     private MenuItem mnuSplit;
     private MenuItem mnuSplit1;
+    private bool _isInited = false;
 
     private int _num = 0 ;
 
@@ -53,8 +54,7 @@ public class SmartHost : IAutoTamper
     {
         this.initConfig();
         this.initializeMenu();
-        this.getPluginPath();
-        this.reportAdapterAddress();
+        this.getPluginPath();  
     }
     private void initConfig()
     {
@@ -381,7 +381,8 @@ public class SmartHost : IAutoTamper
         if (!this._tamperHost || oSession.isTunnel || oSession.isHTTPS) {
             return; 
         }
-        string cIP = !String.IsNullOrEmpty(oSession.m_clientIP) ? oSession.m_clientIP : oSession.clientIP;
+        string cIP = !String.IsNullOrEmpty(oSession.m_clientIP) ? oSession.m_clientIP : 
+            (!String.IsNullOrEmpty(oSession.clientIP)?oSession.clientIP: "127.0.0.1");
         string hostname = oSession.hostname;
         bool isConfig = oSession.HostnameIs("config.qq.com") || oSession.HostnameIs("smart.host");
         if(isConfig)
@@ -451,21 +452,34 @@ public class SmartHost : IAutoTamper
         if (!this._tamperHost || oSession.isTunnel || oSession.isHTTPS) {
             return; 
         }
-        string cIP = !String.IsNullOrEmpty(oSession.m_clientIP) ? oSession.m_clientIP : oSession.clientIP;
-        if(oSession.responseCode >= 500){
-            this.errorCout[cIP]++ ;
-            if(this.errorCout.ContainsKey(cIP) && this.errorCout[cIP]>this._clearProxyErrorCount)
+        string cIP = !String.IsNullOrEmpty(oSession.m_clientIP) ? oSession.m_clientIP :
+            (!String.IsNullOrEmpty(oSession.clientIP)?oSession.clientIP: "127.0.0.1");
+        if ( oSession.responseCode >= 500)
+        {
+            if (this.errorCout.ContainsKey(cIP))
+            {
+                this.errorCout[cIP] += 1;
+            }
+            else
+            {
+                this.errorCout[cIP] = 1;
+            }
+            if(this.errorCout.ContainsKey(cIP) && this.errorCout[cIP] > this._clearProxyErrorCount)
             {
                 List<string> keys = new List<string>(this.usrConfig.Keys);
                 foreach(string ipHost in keys){
                     if(ipHost.StartsWith(cIP+"|",StringComparison.OrdinalIgnoreCase)){
-                        try{this.usrConfig.Remove(ipHost);}catch{}
+                        if(this.usrConfig.ContainsKey(ipHost)){
+                            this.usrConfig.Remove(ipHost);
+                        }
                     }
                 }
             }
         }
     }
     public void OnLoad() {
+       
+        this.reportAdapterAddress();
         FiddlerApplication.UI.mnuMain.MenuItems.Add(mnuSmartHost);
         FiddlerApplication.UI.lvSessions.AddBoundColumn("Client IP", 100, "x-clientIP");
         FiddlerApplication.UI.lvSessions.AddBoundColumn("X-HostIP", 110, "x-HostIP");
