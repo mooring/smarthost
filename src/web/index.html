@@ -17,8 +17,8 @@
     <legend>Model Select</legend>
     <select id="proxyModel" name="proxyModel">
       <option value="">Clean Configuration</option>
-      <option value="remote">Romote Proxy</option>
       <option value="local">IP/Host Pairs</option>
+	  <option value="remote" disabled>Romote Proxy</option>
     </select>
   </fieldset>
   <fieldset id="remoteContent">
@@ -28,13 +28,8 @@
   </fieldset>
   <fieldset id="localContent">
     <legend>IP/Host Pairs</legend>
-    <span holder></span>
-    <div class="info">
-      <input class="input" type="text" key="key" placeholder="weixin.qq.com" />
-      <input class="input" type="text" key="val" placeholder="192.168.10.2" maxlength="15" />
-      <input class="input" type="hidden" name="" value=""/>
-      <button class="gray" id="addBtnOne">Add Pair</button>
-    </div>
+	<div class="select">game.weixin.qq.com<select name="game.weixin.qq.com"><option value="">IDC Host</option><option value="10.123.98.16" selected>10.123.98.16</option><option value="180.163.9.103">180.163.9.103</option><option value="10.246.132.80">10.246.132.80</option></select></div><i></i>
+	<span holder></span>
   </fieldset>
   <fieldset id="cleanContent">
       <legend>Clean Configuration</legend>
@@ -59,7 +54,7 @@
 <div class="center copy">&copy; by mooringniu</div>
 <script type="text/javascript" src="js/appframework.min.js"></script> 
 <script type="text/javascript" src="js/comm.js?ver=1.7"></script> 
-<script type="text/javascript" src="js/index.js?ver=1.7"></script> 
+<script type="text/javascript" src="js/index.js?ver=1.9"></script> 
 <script type="text/javascript" wsrc="http://tajs.qq.com/stats?sId=28971616" charset="utf-8"></script>
 </body>
 </html>
