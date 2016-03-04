@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!doctype html>
 <html>
 <head>
@@ -63,3 +64,65 @@
 <script type="text/javascript" wsrc="http://tajs.qq.com/stats?sId=28971616" charset="utf-8"></script>
 </body>
 </html>
+=======
+<!doctype html>
+<html>
+<head>
+<meta charset="gb2312"/>
+<script type="text/javascript">var _speedMark = new Date();</script>
+<title>SmartHost</title>
+<meta name="author" content="mooringniu" />
+<meta name="url" content="http://code.google.com/p/smarthost" />
+<meta name="description" content="SmartHost A Remote IP/Host Remap Plugin for Fiddler" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="stylesheet" type="text/css" href="css/style.css" />
+</head>
+<body>
+<h2 class="center">SmartHost Configuration</h2>
+<form method="post" action="/" id="selectForm" enctype="application/x-www-form-urlencoded" onsubmit="return checkForm();">
+  <fieldset>
+    <legend>Model Select</legend>
+    <select id="proxyModel" name="proxyModel">
+      <option value="">Clean Configuration</option>
+      <option value="local">IP/Host Pairs</option>
+	  <option value="remote" disabled>Romote Proxy</option>
+    </select>
+  </fieldset>
+  <fieldset id="remoteContent">
+    <legend>Remote Proxy</legend>
+    <input type="text" name="remoteHost" id="remoteHost" placeholder="Remote ip address" maxlength="50"/>
+    <input type="tel"  name="remotePort" id="remotePort" placeholder="Port 8888" value="8888" maxlength="5" />
+  </fieldset>
+  <fieldset id="localContent">
+    <legend>IP/Host Pairs</legend>
+	<div class="select">game.weixin.qq.com<select name="game.weixin.qq.com"><option value="">IDC Host</option><option value="10.123.98.16" selected>10.123.98.16</option><option value="180.163.9.103">180.163.9.103</option><option value="10.246.132.80">10.246.132.80</option></select></div><i></i>
+	<span holder></span>
+  </fieldset>
+  <fieldset id="cleanContent">
+      <legend>Clean Configuration</legend>
+      All of your configuration will be cleaned.
+  </fieldset>
+  <div class="">
+      <input type="hidden" id="oid" name="oid" />
+      <button type="submit" class="blue">Submit</button>
+  </div>
+</form>
+<fieldset>
+    <legend>Model Tips</legend>
+    <dl>
+      <dt>Clean Configuration</dt>
+      <dd>All of your proxy configuration will be cleaned.</dd>
+      <dt>Romote Proxy</dt>
+      <dd>Proxy all HTTP requests to specify IP:Port, and set hosts on that machine</dd>
+      <dt>Local IP/Host Pairs</dt>
+      <dd>Select IP/Hosts pairs which have been configurated by proxy admin</dd>
+    </dl>
+</fieldset>
+<div class="center copy">&copy; by mooringniu</div>
+<script type="text/javascript" src="js/appframework.min.js"></script> 
+<script type="text/javascript" src="js/comm.js?ver=1.7"></script> 
+<script type="text/javascript" src="js/index.js?ver=1.9"></script> 
+<script type="text/javascript" wsrc="http://tajs.qq.com/stats?sId=28971616" charset="utf-8"></script>
+</body>
+</html>
+>>>>>>> a243910ff5e6e53ce2bbe79532bf3e58a9188b18

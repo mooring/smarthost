@@ -6,7 +6,6 @@ function loadConfig() {
         success : restoreHost
     });
 }
-
 function restoreHost(postStr) {
     var obj = strToMap(postStr),
         j = 0,
@@ -174,9 +173,9 @@ function SelectModel() {
 }
 
 function initEvents(win) {
-    win.cloneDOM = $('div.info')[0];
-    win.cloneBTN = $('#addBtnOne')[0];
-    cloneBTN.onclick = CloneHost;
+    //win.cloneDOM = $('div.info')[0];
+   // win.cloneBTN = $('#addBtnOne')[0];
+   // cloneBTN.onclick = CloneHost;
     $('#proxyModel').change(SelectModel);
 }
 $(document).ready(function () {
