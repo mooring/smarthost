@@ -25,13 +25,13 @@ UninstallText         "Are you Sure" "Smarthost path:"
 UninstPage            uninstConfirm
 UninstPage            instfiles
 
-VIProductVersion                      1.1.0.8
+VIProductVersion                      1.1.0.9
 VIAddVersionKey ProductName           "SmartHost"
 VIAddVersionKey Comments              "All Right Reserved By Mooring"
 VIAddVersionKey CompanyName           "Tencent .Ltd"
 VIAddVersionKey FileDescription       "A Simple Host Mapping Tool for Fiddler"
-VIAddVersionKey FileVersion           1.1.0.8
-VIAddVersionKey ProductVersion        1.1.0.8
+VIAddVersionKey FileVersion           1.1.0.9
+VIAddVersionKey ProductVersion        1.1.0.9
 VIAddVersionKey LegalCopyright        "Copyright By mooringniu 2013"
 VIAddVersionKey InternalName          "SmartHost.exe"
 VIAddVersionKey OriginalFilename      "SmartHost.exe"
@@ -80,9 +80,9 @@ Section SmartHost
 
     CreateDirectory  "$OUTDIR\Captures\Responses\Configs"
     WriteUninstaller "$OUTDIR\Scripts\Smarthost\Uninstall.exe"
-    WriteRegStr HKCU "Software\SmartHost" "HostPath" "$OUTDIR"
-    WriteRegStr HKCU "Software\SmartHost" "InstallPath" "$OUTDIR"
-    IfFileExists     "$OUTDIR\Scripts\Smarthost\hosts" fex fnex
+    WriteRegStr HKCU "Software\SmartHost" "HostPath"     "$OUTDIR"
+    WriteRegStr HKCU "Software\SmartHost" "InstallPath"  "$OUTDIR"
+    IfFileExists     "$OUTDIR\Scripts\Smarthost\hosts"   fex fnex
     fnex:
         File         "/oname=$OUTDIR\Scripts\Smarthost\hosts"                    ..\src\native\res\hosts
     fex:
@@ -117,7 +117,7 @@ Section Uninstall
     Delete        "$OUTDIR\Scripts\Smarthost\style.css"
     Delete        "$OUTDIR\Scripts\Smarthost\Uninstall.exe"
     Delete        "$OUTDIR\Scripts\Smarthost.dll"
-    DeleteRegKey   HKCU "Software\SmartHost"
+    DeleteRegKey  HKCU    "Software\SmartHost"
     RMDir         "$OUTDIR\Scripts\Smarthost"
     RMDir         "$OUTDIR\Captures\Responses\Configs"
     RMDir         "$OUTDIR\Captures\Responses\js"

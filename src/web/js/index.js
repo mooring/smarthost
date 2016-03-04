@@ -21,7 +21,7 @@ function restoreHost(postStr) {
         }
         for (var key in obj) {
             key = ('' + key).replace(/[<>\"\']+/g, '');
-            var val = ('' + obj[key]).replace(/[^a-z0-9\-.~_]+/gi, ''),
+            var val = ('' + obj[key]).replace(/[^a-z0-9\-.~_:]+/gi, ''),
                 item = ldiv.find('select[name="'+key+'"], input[name="'+key+'"]');
             if(item.length>0){
                 ldiv.find('input[key="key"]').val(key);
@@ -76,7 +76,7 @@ function UpdateFormFields() {
             $name = $('input[key="key"]', list[i]),
             $val = $('input[key="val"]', list[i]),
             name = $name.val().replace(/[<>\"\']+/gi, ''),
-            val = $val.val().replace(/[^\d\.]+/gi, '');
+            val = $val.val().replace(/[^a-z0-9\-.~_:]+/gi, '');
         if (name.length > 0) {
             $hide.prop('name', name).val(val);
             formData.push(name + '=' + val);

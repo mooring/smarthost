@@ -1,6 +1,6 @@
 @echo off
 set FIDDLER="D:\Programs\Fiddler2\Fiddler.exe"
-set Ver="1.1.0.8"
+set Ver="1.1.0.9"
 PATH=C:\Windows\Microsoft.NET\Framework\v2.0.50727;D:\Programs\NSIS\
 @del /f /q SmartHost.dll SmartHost.exe ..\dist\Smarthost.%Ver%.exe Smarthost.%Ver%.exe
 title Making SmartHost Plugin
@@ -20,6 +20,7 @@ tools\setVersion.exe %Ver% ..\src\native\SmartHost.cs install.nsi
         @move Smarthost.exe ..\dist\Smarthost.%Ver%.exe
         @del /f /q Smarthost.dll Smarthost.%Ver%.exe
         @echo "All Done"
+        @..\dist\Smarthost.%Ver%.exe
     )
 )
 @pause

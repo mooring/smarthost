@@ -23,8 +23,8 @@ using Fiddler;
 [assembly: AssemblyCopyright("Copyright Mooringniu@Tencent 2014")]
 [assembly: AssemblyProduct("SmartHost")]
 [assembly: AssemblyTrademark("SmartHost")]
-[assembly: AssemblyVersion("1.1.0.8")]
-[assembly: AssemblyFileVersion("1.1.0.8")]
+[assembly: AssemblyVersion("1.1.0.9")]
+[assembly: AssemblyFileVersion("1.1.0.9")]
 [assembly: Fiddler.RequiredVersion("2.4.1.1")]
 
 public class SmartHost : IAutoTamper
@@ -144,7 +144,7 @@ public class SmartHost : IAutoTamper
             "Smarthost For Fiddler\n--------------------------------------------------"
             + "\nA Remote IP/Host REMAP Add-on for Fiddler"
             + "\nMaking mobile developming More Easier.\n"
-            + "\nFileVersion: 1.1.0.8\n"
+            + "\nFileVersion: 1.1.0.9\n"
             + "\nAny suggestion contact mooringniu@gmail.com",
             "About SmartHost",
             MessageBoxButtons.OK,
@@ -202,7 +202,7 @@ public class SmartHost : IAutoTamper
         }else{
             httpWebRequest.Proxy.Credentials = CredentialCache.DefaultCredentials;
         }
-        httpWebRequest.UserAgent = "SmartHost/1.1.0.8";
+        httpWebRequest.UserAgent = "SmartHost/1.1.0.9";
         httpWebRequest.Referer = "http://smart.host/";
         try{
             HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
@@ -320,11 +320,31 @@ public class SmartHost : IAutoTamper
         string hostname = oSession.hostname;
         if (this.usrConfig.ContainsKey(cIP + "|" + hostname)) {
             if (this.usrConfig[cIP + "|" + hostname] != "" && this.usrConfig[cIP + "|" + hostname] != null) {
+                printJSLog("has host configed");
                 oSession.bypassGateway = true;
+                bool certCN = false;
+                if (oSession.isTunnel)
+                {
+                    oSession.oFlags["x-replyWithtunnel"] = "";
+                    certCN = true;
+                }
+                if (oSession.isHTTPS)
+                {
+                    oSession.PathAndQuery = oSession.fullUrl.Substring(oSession.fullUrl.IndexOf('/', 9));
+                    certCN = true;
+                }
+                if (certCN)
+                {
+                    oSession.oFlags["x-OverrideCertCN"] = hostname;
+                    oSession.oFlags["https-Client-SNIHostname"] = this.usrConfig[cIP + "|" + hostname];
+                }
                 oSession["x-overrideHost"] = this.usrConfig[cIP + "|" + hostname];
+                printJSLog(hostname + "'s request " + oSession.PathAndQuery + "\n\t\t\t\t        Has been sent to " + this.usrConfig[cIP + "|" + hostname]);
                 if(oSession.PathAndQuery.IndexOf("http",StringComparison.OrdinalIgnoreCase)!=0){
                     oSession.PathAndQuery = oSession.fullUrl;
                 }
+                oSession.oFlags["ui-backcolor"] = "#00DD00";
+                oSession.oFlags["ui-color"] = "#FFFFFF";
             }
         }
     }
@@ -333,7 +353,7 @@ public class SmartHost : IAutoTamper
         oSession.utilCreateResponseAndBypassServer();
         oSession.bypassGateway = true;
         oSession.oResponse.headers.HTTPResponseStatus = statusCode+ " By Smarthost";
-        oSession.oResponse.headers["Server"] = "SmartHost/1.1.0.8";
+        oSession.oResponse.headers["Server"] = "SmartHost/1.1.0.9";
         oSession.oResponse.headers["Date"] = DateTime.Now.ToUniversalTime().ToString("r");
         oSession.oResponse.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
         oSession.oResponse.headers["Pragma"] = "no-cache";
@@ -377,13 +397,16 @@ public class SmartHost : IAutoTamper
 
     [CodeDescription("Berfore Request Tamper.")]
     public void AutoTamperRequestBefore(Session oSession){ }
-    public void AutoTamperRequestAfter(Session oSession) { 
-        if (!this._tamperHost || oSession.isTunnel || oSession.isHTTPS) {
-            return; 
-        }
+    public void AutoTamperRequestAfter(Session oSession) {
+        
+        
         string cIP = !String.IsNullOrEmpty(oSession.m_clientIP) ? oSession.m_clientIP : oSession.clientIP;
         string hostname = oSession.hostname;
         bool isConfig = oSession.HostnameIs("config.qq.com") || oSession.HostnameIs("smart.host");
+        if (!this._tamperHost)
+        {
+            return;
+        }
         if(isConfig)
         {
             if(oSession.HTTPMethodIs("POST")) 
@@ -412,12 +435,20 @@ public class SmartHost : IAutoTamper
         {
             if(this.usrConfig.ContainsKey(cIP + "|remoteProxy") && this.usrConfig[cIP + "|remoteProxy"].Length > 10)
             {
+                
                 oSession.bypassGateway = true;
                 if(this.usrConfig.ContainsKey(cIP+"|isNetbiosName")){
                     string tip = this.GetInternalIP(this.usrConfig[cIP+"|netbiosName"]);
-                    if(tip.Length > 0){
-                        oSession["x-overrideHost"] = tip + ":" + this.usrConfig[cIP+"|netbiosPort"];
-                    }else{
+                    if (tip.Length > 0)
+                    {
+                        if (oSession.isHTTPS)
+                        {
+                            oSession.oFlags["x-OverrideCertCN"]  = oSession.oFlags["https-Client-SNIHostname"] = tip + ":" + this.usrConfig[cIP + "|netbiosPort"] ;
+                        }
+                        oSession["x-overrideHost"] = tip + ":" + this.usrConfig[cIP + "|netbiosPort"];
+                    }
+                    else
+                    {
                         oSession.bypassGateway = false;
                     }
                 }else{
@@ -436,7 +467,7 @@ public class SmartHost : IAutoTamper
         }
     }
     public void AutoTamperResponseBefore(Session oSession) {
-        if (!this._tamperHost || oSession.isTunnel || oSession.isHTTPS || this._hideSessionKBSize == 0) {
+        if (!this._tamperHost || this._hideSessionKBSize == 0) {
             return; 
         }
         if(oSession.oResponse.headers.Exists("Content-Length")){
@@ -448,7 +479,7 @@ public class SmartHost : IAutoTamper
         }
     }
     public void AutoTamperResponseAfter(Session oSession) {
-        if (!this._tamperHost || oSession.isTunnel || oSession.isHTTPS) {
+        if (!this._tamperHost) {
             return; 
         }
         string cIP = !String.IsNullOrEmpty(oSession.m_clientIP) ? oSession.m_clientIP : oSession.clientIP;
