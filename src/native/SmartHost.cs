@@ -398,8 +398,6 @@ public class SmartHost : IAutoTamper
     [CodeDescription("Berfore Request Tamper.")]
     public void AutoTamperRequestBefore(Session oSession){ }
     public void AutoTamperRequestAfter(Session oSession) {
-        
-        
         string cIP = !String.IsNullOrEmpty(oSession.m_clientIP) ? oSession.m_clientIP : oSession.clientIP;
         string hostname = oSession.hostname;
         bool isConfig = oSession.HostnameIs("config.qq.com") || oSession.HostnameIs("smart.host");
@@ -437,14 +435,11 @@ public class SmartHost : IAutoTamper
             {
                 
                 oSession.bypassGateway = true;
+                
                 if(this.usrConfig.ContainsKey(cIP+"|isNetbiosName")){
                     string tip = this.GetInternalIP(this.usrConfig[cIP+"|netbiosName"]);
                     if (tip.Length > 0)
                     {
-                        if (oSession.isHTTPS)
-                        {
-                            oSession.oFlags["x-OverrideCertCN"]  = oSession.oFlags["https-Client-SNIHostname"] = tip + ":" + this.usrConfig[cIP + "|netbiosPort"] ;
-                        }
                         oSession["x-overrideHost"] = tip + ":" + this.usrConfig[cIP + "|netbiosPort"];
                     }
                     else
@@ -453,6 +448,11 @@ public class SmartHost : IAutoTamper
                     }
                 }else{
                     oSession["x-overrideHost"] = this.usrConfig[cIP + "|remoteProxy"];
+                }
+                if(oSession.bypassGateway&& (oSession.isHTTPS || oSession.isTunnel))
+                {
+                    oSession.oFlags["x-OverrideCertCN"] = hostname;
+                    oSession.oFlags["https-Client-SNIHostname"] = tip + ":" + this.usrConfig[cIP + "|netbiosPort"];
                 }
                 oSession.oRequest.headers["clientIP"] = cIP;
                 //this.printJSLog(oSession.hostname+"---"+oSession.PathAndQuery +"-->>>"+oSession.PathAndQuery.IndexOf("http",StringComparison.OrdinalIgnoreCase).ToString()+"<<<");
