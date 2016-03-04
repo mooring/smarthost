@@ -343,8 +343,8 @@ public class SmartHost : IAutoTamper
                 if(oSession.PathAndQuery.IndexOf("http",StringComparison.OrdinalIgnoreCase)!=0){
                     oSession.PathAndQuery = oSession.fullUrl;
                 }
-                oSession.oFlags["ui-backcolor"] = "#00DD00";
-                oSession.oFlags["ui-color"] = "#FFFFFF";
+                oSession.oFlags["ui-backcolor"] = "#FFD700";
+                oSession.oFlags["ui-color"] = "#000000";
             }
         }
     }
