@@ -21,15 +21,14 @@ function restoreHost(postStr) {
         for (var key in obj) {
             key = ('' + key).replace(/[<>\"\']+/g, '');
             var val = ('' + obj[key]).replace(/[^a-z0-9\-.~_:]+/gi, ''),
-                item = ldiv.find('select[name="'+key+'"], input[name="'+key+'"]');
+                item = ldiv.find('select[name="'+key+'"]');
             if(item.length>0){
-                ldiv.find('input[key="key"]').val(key);
-                ldiv.find('input[key="val"]').val(val);
                 item.val(val);
             }else{
                 if (j == 0) {
                     $('input[key="key"]', cloneDOM.parentNode).val(key);
                     $('input[key="val"]', cloneDOM.parentNode).val(val);
+					$('input[type="hidden"]', cloneDOM.parentNode).attr('name',key).val(val);
                 } else {
                     CloneHost(key, val);
                 }
@@ -50,7 +49,10 @@ function CloneHost(key, val) {
     if (key && val) {
         $('input[key="key"]', div).val(key);
         $('input[key="val"]', div).val(val);
-    }
+		$('input[type="hidden"]',div).attr('name',key).val(val);
+    }else{
+		$('input[type="hidden"]',div).attr('name','').val('');
+	}
 }
 
 function checkForm() {
@@ -79,7 +81,9 @@ function UpdateFormFields() {
         if (name.length > 0) {
             $hide.prop('name', name).val(val);
             formData.push(name + '=' + val);
-        }
+        }else{
+			$hide.prop('name', '').val('');
+		}
     }
     return formData.join('&');
 }
@@ -173,9 +177,9 @@ function SelectModel() {
 }
 
 function initEvents(win) {
-    //win.cloneDOM = $('div.info')[0];
-   // win.cloneBTN = $('#addBtnOne')[0];
-   // cloneBTN.onclick = CloneHost;
+    win.cloneDOM = $('div.info')[0];
+    win.cloneBTN = $('#addBtnOne')[0];
+    cloneBTN.onclick = CloneHost;
     $('#proxyModel').change(SelectModel);
 }
 $(document).ready(function () {
