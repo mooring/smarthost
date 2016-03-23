@@ -435,24 +435,32 @@ public class SmartHost : IAutoTamper
             {
                 
                 oSession.bypassGateway = true;
-                
+                string netbiosIP = "";
                 if(this.usrConfig.ContainsKey(cIP+"|isNetbiosName")){
                     string tip = this.GetInternalIP(this.usrConfig[cIP+"|netbiosName"]);
                     if (tip.Length > 0)
                     {
-                        oSession["x-overrideHost"] = tip + ":" + this.usrConfig[cIP + "|netbiosPort"];
+                        netbiosIP = tip;
+                        oSession["x-overrideHostname"] = tip; // this.usrConfig[cIP + "|remoteProxy"];
                     }
                     else
                     {
                         oSession.bypassGateway = false;
                     }
                 }else{
-                    oSession["x-overrideHost"] = this.usrConfig[cIP + "|remoteProxy"];
+                    oSession["x-overrideHostname"] = this.usrConfig[cIP + "|remoteProxy"];
                 }
-                if(oSession.bypassGateway&& (oSession.isHTTPS || oSession.isTunnel))
+                
+                if(oSession.bypassGateway &&oSession.isHTTPS && netbiosIP.Length == 0)
                 {
+                    printJSLog("wow2>>" + this.usrConfig[cIP + "|remoteProxy"] + "<<<host:" + hostname); 
+                    oSession["x-overrideHostname"] = this.usrConfig[cIP + "|remoteProxy"];
                     oSession.oFlags["x-OverrideCertCN"] = hostname;
-                    oSession.oFlags["https-Client-SNIHostname"] = tip + ":" + this.usrConfig[cIP + "|netbiosPort"];
+                    oSession.oFlags["https-Client-SNIHostname"] = this.usrConfig[cIP + "|remoteProxy"];
+                }
+                if (oSession.isHTTPS)
+                {
+                    oSession.PathAndQuery = oSession.fullUrl.Substring(oSession.fullUrl.IndexOf('/', 9));
                 }
                 oSession.oRequest.headers["clientIP"] = cIP;
                 //this.printJSLog(oSession.hostname+"---"+oSession.PathAndQuery +"-->>>"+oSession.PathAndQuery.IndexOf("http",StringComparison.OrdinalIgnoreCase).ToString()+"<<<");
