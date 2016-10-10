@@ -394,7 +394,16 @@ public class SmartHost : IAutoTamper
         }
         return obj;
     }
-
+    
+    private void redirectHttpsToHttp(Session oSession)
+    {
+        this.setCommonHeaders(oSession, 302);
+        oSession.oResponse.headers["Content-Length"] = "0";
+        oSession.oResponse.headers["Location"] = oSession.fullUrl.Replace("https:", "http:");
+        oSession.utilSetResponseBody("");
+        printJSLog(oSession.fullUrl + "\nis Redircting to HTTP Protocol");
+    }
+    
     [CodeDescription("Berfore Request Tamper.")]
     public void AutoTamperRequestBefore(Session oSession){ }
     public void AutoTamperRequestAfter(Session oSession) {
@@ -405,8 +414,10 @@ public class SmartHost : IAutoTamper
         {
             return;
         }
+        
         if(isConfig)
         {
+            if(oSession.isHTTPS){ redirectHttpsToHttp(oSession); return;}
             if(oSession.HTTPMethodIs("POST")) 
             {
                 this.updateClientConfig(cIP, oSession);
@@ -433,7 +444,7 @@ public class SmartHost : IAutoTamper
         {
             if(this.usrConfig.ContainsKey(cIP + "|remoteProxy") && this.usrConfig[cIP + "|remoteProxy"].Length > 10)
             {
-                
+                if(oSession.isHTTPS){ redirectHttpsToHttp(oSession); return;}
                 oSession.bypassGateway = true;
                 string netbiosIP = "";
                 if(this.usrConfig.ContainsKey(cIP+"|isNetbiosName")){
@@ -451,7 +462,7 @@ public class SmartHost : IAutoTamper
                     oSession["x-overrideHostname"] = this.usrConfig[cIP + "|remoteProxy"];
                 }
                 
-                if(oSession.bypassGateway &&oSession.isHTTPS && netbiosIP.Length == 0)
+                if(oSession.bypassGateway && oSession.isHTTPS && netbiosIP.Length == 0)
                 {
                     printJSLog("wow2>>" + this.usrConfig[cIP + "|remoteProxy"] + "<<<host:" + hostname); 
                     oSession["x-overrideHostname"] = this.usrConfig[cIP + "|remoteProxy"];
@@ -470,6 +481,7 @@ public class SmartHost : IAutoTamper
             }
             else if( this.usrConfig.ContainsKey(cIP + "|" + hostname)) 
             {
+                if(oSession.isHTTPS){ redirectHttpsToHttp(oSession); return;}
                 this.tamperConfigedHost(cIP, oSession);
             }
         }
